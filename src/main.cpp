@@ -6,19 +6,84 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/20 13:26:02 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/20 16:05:39 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Data.hpp"
 #include <iostream>
 
+bool	pawnMove(Data &data, int xAdd, int yAdd)
+{
+	if ((yAdd > 0 && data.grabbedPiece->getOwner() == WHITE_P) || (yAdd < 0 && data.grabbedPiece->getOwner() == BLACK_P))
+		return (false);
+	if (yAdd > 2 || yAdd < -2)
+		return (false);
+	if ((yAdd > 1 && data.grabbedPiecePosY != 1) || (yAdd < -1 && data.grabbedPiecePosY != 6))
+			return (false);
+	if (xAdd != 0 && yAdd == 0)
+		return (false);
+
+	int	incr = 0;
+	if (yAdd > 0)
+		incr = 1;
+	else if (yAdd < 0)
+		incr = -1;
+	int i = incr;
+
+	while ((incr == 1 && i <= yAdd) || (incr == -1 && i >= yAdd))
+	{
+	std::cout << incr << " " << i << std::endl;
+		if (data.square[data.grabbedPiecePosY + i][data.grabbedPiecePosX].piece != nullptr)
+		{
+			std::cout << "Really?" << std::endl;
+			return (false);
+		}
+		i += incr;
+	}
+	return (true);
+}
+
+bool	isMovePossible(Data &data, int xAdd, int yAdd)
+{
+	if (xAdd == 0 && yAdd == 0)
+		return (false);
+	switch (data.grabbedPiece->getType()) {
+		case PAWN :
+				if (pawnMove(data, xAdd, yAdd))
+					return (true);
+			break;
+	}
+	return (false);
+}
+
+void	placePiece(Data &data)
+{
+	if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && data.grabbedPiece != nullptr)
+	{
+		int size = SCREEN_WIDTH / 8;
+		int x = GetMouseX();
+		int y = GetMouseY();
+
+		x /= size;
+		y /= size;
+		if (isMovePossible(data, x - data.grabbedPiecePosX, y - data.grabbedPiecePosY))
+		{
+			data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
+				data.square[y][x].piece = data.grabbedPiece;
+		}
+		data.grabbedPiece->setGrabbed(false);
+		data.grabbedPiece = nullptr;
+		data.grabbedPiecePosX = -1;
+		data.grabbedPiecePosY = -1;
+	}
+
+}
 void	grabPiece(Data &data)
 {
-	int size = SCREEN_WIDTH / 8;
-
-	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && data.grabbedPiece == nullptr)
 	{
+		int size = SCREEN_WIDTH / 8;
 		int x = GetMouseX();
 		int y = GetMouseY();
 
@@ -28,6 +93,8 @@ void	grabPiece(Data &data)
 		{
 			data.grabbedPiece = data.square[y][x].piece;
 			data.square[y][x].piece->setGrabbed(true);
+			data.grabbedPiecePosX = x;
+			data.grabbedPiecePosY = y;
 		}
 	}
 }
@@ -199,7 +266,7 @@ int	main()
 	Data data;
 
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Chess");
-	SetTargetFPS(30);
+	SetTargetFPS(120);
 	initTex(data);
 	initPieces(data);
 	while (!WindowShouldClose())
@@ -207,6 +274,7 @@ int	main()
 		BeginDrawing();
 		// ACTIONS
 		grabPiece(data);
+		placePiece(data);
 		// DRAWING
 		ClearBackground(RAYWHITE);
 		drawBoard(data);
