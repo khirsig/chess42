@@ -6,12 +6,43 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/20 16:15:49 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/20 16:23:55 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Data.hpp"
 #include <iostream>
+
+bool	bishopMove(Data &data, int xAdd, int yAdd)
+{
+	if (xAdd == 0 || yAdd == 0)
+		return (false);
+
+	int	xIncr = 0;
+	if (xAdd > 0)
+		xIncr = 1;
+	else
+		xIncr = -1;
+	int	yIncr = 0;
+	if (yAdd > 0)
+		yIncr = 1;
+	else
+		yIncr = -1;
+	int x = xIncr;
+	int y = yIncr;
+
+	while (((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd)) && ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd)))
+	{
+		if (data.square[data.grabbedPiecePosY + y][data.grabbedPiecePosX + x].piece != nullptr && (x != xAdd || y != yAdd))
+			return (false);
+
+		if ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd))
+			x += xIncr;
+		if ((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd))
+			y += yIncr;
+	}
+	return (true);
+}
 
 bool	pawnMove(Data &data, int xAdd, int yAdd)
 {
@@ -51,6 +82,9 @@ bool	isMovePossible(Data &data, int xAdd, int yAdd)
 	switch (data.grabbedPiece->getType()) {
 		case PAWN :
 				if (pawnMove(data, xAdd, yAdd))
+					return (true);
+		case BISHOP :
+				if (bishopMove(data, xAdd, yAdd))
 					return (true);
 			break;
 	}
