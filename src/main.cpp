@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/20 16:05:39 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/20 16:15:49 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ bool	pawnMove(Data &data, int xAdd, int yAdd)
 			return (false);
 	if (xAdd != 0 && yAdd == 0)
 		return (false);
+	if (xAdd > 1 || xAdd < -1)
+		return (false);
 
 	int	incr = 0;
 	if (yAdd > 0)
@@ -33,12 +35,10 @@ bool	pawnMove(Data &data, int xAdd, int yAdd)
 
 	while ((incr == 1 && i <= yAdd) || (incr == -1 && i >= yAdd))
 	{
-	std::cout << incr << " " << i << std::endl;
-		if (data.square[data.grabbedPiecePosY + i][data.grabbedPiecePosX].piece != nullptr)
-		{
-			std::cout << "Really?" << std::endl;
+		if (data.square[data.grabbedPiecePosY + i][data.grabbedPiecePosX + xAdd].piece != nullptr && xAdd == 0)
 			return (false);
-		}
+		if (data.square[data.grabbedPiecePosY + i][data.grabbedPiecePosX + xAdd].piece == nullptr && xAdd != 0)
+			return (false);
 		i += incr;
 	}
 	return (true);
