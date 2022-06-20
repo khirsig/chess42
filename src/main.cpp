@@ -6,12 +6,17 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/07 00:00:39 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/20 13:05:39 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Data.hpp"
 #include <iostream>
+
+void	grabPiece(Data &data)
+{
+	return ;
+}
 
 void	initPieces(Data &data)
 {
@@ -24,15 +29,33 @@ void	initPieces(Data &data)
 	}
 	for (int i = 0; i < 8; ++i)
 	{
-		ChessPiece temp;
-		temp.owner = WHITE_P;
-		temp.type = PAWN;
-		data.whitePiece.push_back(temp);
-		data.square[6][i].piece = &data.whitePiece.back();
-		temp.owner = BLACK_P;
-		temp.type = PAWN;
-		data.blackPiece.push_back(temp);
-		data.square[1][i].piece = &data.blackPiece.back();
+		data.square[6][i].piece = new ChessPiece(WHITE_P, PAWN);
+		data.square[1][i].piece = new ChessPiece(BLACK_P, PAWN);
+		if (i == 1 || i == 6)
+		{
+			data.square[7][i].piece = new ChessPiece(WHITE_P, KNIGHT);
+			data.square[0][i].piece = new ChessPiece(BLACK_P, KNIGHT);
+		}
+		if (i == 2 || i == 5)
+		{
+			data.square[7][i].piece = new ChessPiece(WHITE_P, BISHOP);
+			data.square[0][i].piece = new ChessPiece(BLACK_P, BISHOP);
+		}
+		if (i == 0 || i == 7)
+		{
+			data.square[7][i].piece = new ChessPiece(WHITE_P, ROOK);
+			data.square[0][i].piece = new ChessPiece(BLACK_P, ROOK);
+		}
+		if (i == 3)
+		{
+			data.square[7][i].piece = new ChessPiece(WHITE_P, QUEEN);
+			data.square[0][i].piece = new ChessPiece(BLACK_P, QUEEN);
+		}
+		if (i == 4)
+		{
+			data.square[7][i].piece = new ChessPiece(WHITE_P, KING);
+			data.square[0][i].piece = new ChessPiece(BLACK_P, KING);
+		}
 	}
 }
 
@@ -56,7 +79,7 @@ std::string	getTexPath(int i)
 
 void	initTex(Data &data)
 {
-	for (int i = 0; i < 2; ++i)
+	for (int i = 0; i < 12; ++i)
 	{
 		data.tex.push_back(raylib::Texture(getTexPath(i)));
 	}
@@ -78,18 +101,44 @@ void	drawPiece(Data &data)
 				pos.x = x * size;
 				pos.y = y * size;
 				scale = (float)size / 1280;
-				if (data.square[y][x].piece->type == PAWN)
-				{
-					if (data.square[y][x].piece->owner == WHITE_P)
-					{
-						DrawTextureEx(data.tex[0], pos, 0, scale, WHITE);
-						std::cout << "WHITE: " << x << "   " << y << "   " << data.square[y][x].piece->owner << "   " << data.square[y][x].piece->type << std::endl;
-					}
-					else
-					{
-						DrawTextureEx(data.tex[1], pos, 0, scale, WHITE);
-						std::cout << "BLACK: " << x << "   " << y << "   " << data.square[y][x].piece->owner << "   " << data.square[y][x].piece->type << std::endl;
-					}
+				int	pieceType = data.square[y][x].piece->getType();
+				switch (pieceType) {
+					case PAWN :
+						if (data.square[y][x].piece->getOwner() == WHITE_P)
+							DrawTextureEx(data.tex[0], pos, 0, scale, WHITE);
+						else
+							DrawTextureEx(data.tex[1], pos, 0, scale, WHITE);
+						break ;
+					case BISHOP :
+						if (data.square[y][x].piece->getOwner() == WHITE_P)
+							DrawTextureEx(data.tex[2], pos, 0, scale, WHITE);
+						else
+							DrawTextureEx(data.tex[3], pos, 0, scale, WHITE);
+						break ;
+					case KNIGHT :
+						if (data.square[y][x].piece->getOwner() == WHITE_P)
+							DrawTextureEx(data.tex[4], pos, 0, scale, WHITE);
+						else
+							DrawTextureEx(data.tex[5], pos, 0, scale, WHITE);
+						break ;
+					case ROOK :
+						if (data.square[y][x].piece->getOwner() == WHITE_P)
+							DrawTextureEx(data.tex[6], pos, 0, scale, WHITE);
+						else
+							DrawTextureEx(data.tex[7], pos, 0, scale, WHITE);
+						break ;
+					case QUEEN :
+						if (data.square[y][x].piece->getOwner() == WHITE_P)
+							DrawTextureEx(data.tex[8], pos, 0, scale, WHITE);
+						else
+							DrawTextureEx(data.tex[9], pos, 0, scale, WHITE);
+						break ;
+					case KING :
+						if (data.square[y][x].piece->getOwner() == WHITE_P)
+							DrawTextureEx(data.tex[10], pos, 0, scale, WHITE);
+						else
+							DrawTextureEx(data.tex[11], pos, 0, scale, WHITE);
+						break ;
 				}
 			}
 		}
