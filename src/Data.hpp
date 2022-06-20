@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/20 12:48:31 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/20 13:23:33 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ struct Data {
 	raylib::Color						primaryColor = RAYWHITE;
 	raylib::Color						secondaryColor = BLUE;
 	std::vector<raylib::Texture2D>		tex;
+	ChessPiece							*grabbedPiece = nullptr;
 };
 
 

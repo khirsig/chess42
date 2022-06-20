@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/20 13:05:39 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/20 13:26:02 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,21 @@
 
 void	grabPiece(Data &data)
 {
-	return ;
+	int size = SCREEN_WIDTH / 8;
+
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+	{
+		int x = GetMouseX();
+		int y = GetMouseY();
+
+		x /= size;
+		y /= size;
+		if (data.square[y][x].piece != nullptr)
+		{
+			data.grabbedPiece = data.square[y][x].piece;
+			data.square[y][x].piece->setGrabbed(true);
+		}
+	}
 }
 
 void	initPieces(Data &data)
@@ -98,43 +112,52 @@ void	drawPiece(Data &data)
 				raylib::Vector2 pos;
 				float			scale;
 
-				pos.x = x * size;
-				pos.y = y * size;
-				scale = (float)size / 1280;
 				int	pieceType = data.square[y][x].piece->getType();
+				int pieceOwner = data.square[y][x].piece->getOwner();
+				if (data.square[y][x].piece->getGrabbed())
+				{
+					pos.x = GetMouseX() - size / 2;
+					pos.y = GetMouseY() - size / 2;
+				}
+				else
+				{
+					pos.x = x * size;
+					pos.y = y * size;
+				}
+				scale = (float)size / 1280;
 				switch (pieceType) {
 					case PAWN :
-						if (data.square[y][x].piece->getOwner() == WHITE_P)
+						if (pieceOwner == WHITE_P)
 							DrawTextureEx(data.tex[0], pos, 0, scale, WHITE);
 						else
 							DrawTextureEx(data.tex[1], pos, 0, scale, WHITE);
 						break ;
 					case BISHOP :
-						if (data.square[y][x].piece->getOwner() == WHITE_P)
+						if (pieceOwner == WHITE_P)
 							DrawTextureEx(data.tex[2], pos, 0, scale, WHITE);
 						else
 							DrawTextureEx(data.tex[3], pos, 0, scale, WHITE);
 						break ;
 					case KNIGHT :
-						if (data.square[y][x].piece->getOwner() == WHITE_P)
+						if (pieceOwner == WHITE_P)
 							DrawTextureEx(data.tex[4], pos, 0, scale, WHITE);
 						else
 							DrawTextureEx(data.tex[5], pos, 0, scale, WHITE);
 						break ;
 					case ROOK :
-						if (data.square[y][x].piece->getOwner() == WHITE_P)
+						if (pieceOwner == WHITE_P)
 							DrawTextureEx(data.tex[6], pos, 0, scale, WHITE);
 						else
 							DrawTextureEx(data.tex[7], pos, 0, scale, WHITE);
 						break ;
 					case QUEEN :
-						if (data.square[y][x].piece->getOwner() == WHITE_P)
+						if (pieceOwner == WHITE_P)
 							DrawTextureEx(data.tex[8], pos, 0, scale, WHITE);
 						else
 							DrawTextureEx(data.tex[9], pos, 0, scale, WHITE);
 						break ;
 					case KING :
-						if (data.square[y][x].piece->getOwner() == WHITE_P)
+						if (pieceOwner == WHITE_P)
 							DrawTextureEx(data.tex[10], pos, 0, scale, WHITE);
 						else
 							DrawTextureEx(data.tex[11], pos, 0, scale, WHITE);
@@ -182,6 +205,9 @@ int	main()
 	while (!WindowShouldClose())
 	{
 		BeginDrawing();
+		// ACTIONS
+		grabPiece(data);
+		// DRAWING
 		ClearBackground(RAYWHITE);
 		drawBoard(data);
 		drawPiece(data);

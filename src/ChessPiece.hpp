@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:33:09 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/20 13:04:51 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/20 13:20:38 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 # define WHITE_P 0
 # define BLACK_P 1
-# define GRABBED 2
 
 # define PAWN 0
 # define BISHOP 1
@@ -30,11 +29,14 @@ class ChessPiece {
 		ChessPiece(int owner, int type) : _owner(owner), _type(type) { }
 		~ChessPiece() { }
 
-		int	getOwner() const { return (this->_owner); }
-		int	getType() const { return (this->_type); }
+		void	setGrabbed(bool isGrabbed) { this->_grabbed = isGrabbed; }
+		int		getOwner() const { return (this->_owner); }
+		int		getType() const { return (this->_type); }
+		bool	getGrabbed() const { return (this->_grabbed); }
 	private:
-		int	_owner;
-		int	_type;
+		int		_owner;
+		int		_type;
+		bool	_grabbed = false;
 };
 
 #endif
