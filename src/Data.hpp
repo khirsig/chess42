@@ -6,15 +6,16 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/20 13:48:31 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/20 16:26:52 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef DATA_HPP
 # define DATA_HPP
 
-# include "../raylib-cpp/include/raylib-cpp.hpp"
 # include <vector>
+# include <cstdlib>
+# include "../raylib-cpp/include/raylib-cpp.hpp"
 # include "./BoardSquare.hpp"
 
 # define SCREEN_WIDTH 800

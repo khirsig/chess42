@@ -6,32 +6,72 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/20 16:23:55 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/20 17:01:01 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Data.hpp"
 #include <iostream>
 
-bool	bishopMove(Data &data, int xAdd, int yAdd)
+bool	rookMove(Data &data, int xAdd, int yAdd)
 {
-	if (xAdd == 0 || yAdd == 0)
+	if (xAdd != 0 && yAdd != 0)
 		return (false);
 
 	int	xIncr = 0;
 	if (xAdd > 0)
 		xIncr = 1;
-	else
+	else if (xAdd < 0)
 		xIncr = -1;
 	int	yIncr = 0;
 	if (yAdd > 0)
 		yIncr = 1;
-	else
+	else if (yAdd < 0)
 		yIncr = -1;
 	int x = xIncr;
 	int y = yIncr;
 
-	while (((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd)) && ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd)))
+	while (((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd) || (yIncr == 0)) && ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd) || (xIncr == 0)))
+	{
+		if (data.square[data.grabbedPiecePosY + y][data.grabbedPiecePosX + x].piece != nullptr && (x != xAdd || y != yAdd))
+			return (false);
+
+		if ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd))
+			x += xIncr;
+		if ((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd))
+			y += yIncr;
+	}
+	return (true);
+}
+
+bool	knightMove(Data &data, int xAdd, int yAdd)
+{
+	if (!((abs(xAdd) == 2 && abs(yAdd) == 1) || (abs(xAdd) == 1 && abs(yAdd) == 2)))
+		return (false);
+	return (true);
+}
+
+bool	bishopMove(Data &data, int xAdd, int yAdd)
+{
+	if (xAdd == 0 || yAdd == 0)
+		return (false);
+	if (abs(xAdd) != abs(yAdd))
+		return (false);
+
+	int	xIncr = 0;
+	if (xAdd > 0)
+		xIncr = 1;
+	else if (xAdd < 0)
+		xIncr = -1;
+	int	yIncr = 0;
+	if (yAdd > 0)
+		yIncr = 1;
+	else if (yAdd < 0)
+		yIncr = -1;
+	int x = xIncr;
+	int y = yIncr;
+
+	while (((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd) || (yIncr == 0)) && ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd) || (xIncr == 0)))
 	{
 		if (data.square[data.grabbedPiecePosY + y][data.grabbedPiecePosX + x].piece != nullptr && (x != xAdd || y != yAdd))
 			return (false);
@@ -81,12 +121,25 @@ bool	isMovePossible(Data &data, int xAdd, int yAdd)
 		return (false);
 	switch (data.grabbedPiece->getType()) {
 		case PAWN :
-				if (pawnMove(data, xAdd, yAdd))
-					return (true);
+			if (pawnMove(data, xAdd, yAdd))
+				return (true);
+			break ;
 		case BISHOP :
-				if (bishopMove(data, xAdd, yAdd))
-					return (true);
+			if (bishopMove(data, xAdd, yAdd))
+				return (true);
+			break ;
+		case KNIGHT :
+			if (knightMove(data, xAdd, yAdd))
+				return (true);
 			break;
+		case ROOK :
+			if (rookMove(data, xAdd, yAdd))
+				return (true);
+			break ;
+		case QUEEN :
+			if (bishopMove(data, xAdd, yAdd) || rookMove(data, xAdd, yAdd))
+				return (true);
+			break ;
 	}
 	return (false);
 }
@@ -103,8 +156,11 @@ void	placePiece(Data &data)
 		y /= size;
 		if (isMovePossible(data, x - data.grabbedPiecePosX, y - data.grabbedPiecePosY))
 		{
-			data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
+			if ((data.square[y][x].piece != nullptr && data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece->getOwner() != data.square[y][x].piece->getOwner()) || data.square[y][x].piece == nullptr)
+			{
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
 				data.square[y][x].piece = data.grabbedPiece;
+			}
 		}
 		data.grabbedPiece->setGrabbed(false);
 		data.grabbedPiece = nullptr;
