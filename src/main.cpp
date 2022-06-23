@@ -6,12 +6,45 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/23 09:03:51 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/23 16:01:06 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Data.hpp"
-#include <iostream>
+#include "../include/Data.hpp"
+
+int	kingMove(Data &data, int xAdd, int yAdd)
+{
+	if (abs(xAdd) > 0 && yAdd == 0
+		&& data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece != nullptr
+		&& data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece->getType() == ROOK)
+	{
+		int incr;
+		if (xAdd > 0)
+			incr = 1;
+		else
+			incr = -1;
+		int x = incr;
+		while ((incr == 1 && x <= xAdd) || (incr == -1 && x >= xAdd))
+		{
+			if (data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + x].piece != nullptr && x != xAdd)
+				return (-1);
+			if (data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + x].piece != nullptr && x == xAdd)
+			{
+				if (data.grabbedPiecePosX + x == 0)
+					return (KING_LONG_CASTLE);
+				else if (data.grabbedPiecePosX + x == 7)
+					return (KING_SHORT_CASTLE);
+				return (-1);
+			}
+			x += incr;
+		}
+	if (abs(xAdd) > 1 || abs(yAdd) > 1)
+		return (-1);
+	if (abs(xAdd) != 1 && abs(yAdd) != 1)
+		return (-1);
+	}
+	return (KING_NORMAL);
+}
 
 bool	rookMove(Data &data, int xAdd, int yAdd)
 {
@@ -139,6 +172,26 @@ bool	isMovePossible(Data &data, int xAdd, int yAdd)
 		case QUEEN :
 			if (bishopMove(data, xAdd, yAdd) || rookMove(data, xAdd, yAdd))
 				return (true);
+			break ;
+		case KING :
+			int ret = kingMove(data, xAdd, yAdd);
+			if (ret == KING_NORMAL)
+				return (true);
+			if (ret == KING_SHORT_CASTLE)
+			{
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + 1].piece = data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece;
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece = nullptr;
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + 2].piece = data.grabbedPiece;
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
+			}
+			if (ret == KING_LONG_CASTLE)
+			{
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - 1].piece = data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece;
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - xAdd].piece = nullptr;
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - 2].piece = data.grabbedPiece;
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
+			}
+			return (false);
 			break ;
 	}
 	return (false);
@@ -366,7 +419,7 @@ int	main()
 {
 	Data data;
 
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Chess");
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Chess 42");
 	SetTargetFPS(120);
 	initTex(data);
 	initPieces(data);
@@ -376,10 +429,11 @@ int	main()
 		// ACTIONS
 		grabPiece(data);
 		placePiece(data);
-		// DRAWING
+		// START DRAWING
 		ClearBackground(RAYWHITE);
 		drawBoard(data);
 		drawAllPieces(data);
+		// END DRAWING
 		EndDrawing();
 	}
 	CloseWindow();

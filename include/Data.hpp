@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/20 16:26:52 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/23 15:54:16 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,19 @@
 
 # include <vector>
 # include <cstdlib>
+# include <iostream>
 # include "../raylib-cpp/include/raylib-cpp.hpp"
 # include "./BoardSquare.hpp"
 
 # define SCREEN_WIDTH 800
 # define SCREEN_HEIGHT 800
+
+# define CHECK 1
+# define MATE 2
+
+# define KING_NORMAL 0
+# define KING_SHORT_CASTLE 1
+# define KING_LONG_CASTLE 2
 
 struct Data {
 	BoardSquare							square[8][8];
@@ -29,6 +37,7 @@ struct Data {
 	ChessPiece							*grabbedPiece = nullptr;
 	int									grabbedPiecePosX;
 	int									grabbedPiecePosY;
+	bool								PlayerHasCastled[2];
 };
 
 
