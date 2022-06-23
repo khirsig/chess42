@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/23 17:50:45 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/23 17:59:45 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,9 @@ int	kingMove(Data &data, int xAdd, int yAdd)
 {
 	if (abs(xAdd) > 0 && yAdd == 0
 		&& data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece != nullptr
-		&& data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece->getType() == ROOK)
+		&& data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece->getType() == ROOK
+		&& !data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece->getHasMoved()
+		&& !data.grabbedPiece->getHasMoved())
 	{
 		int incr;
 		if (xAdd > 0)
@@ -38,11 +40,11 @@ int	kingMove(Data &data, int xAdd, int yAdd)
 			}
 			x += incr;
 		}
+	}
 	if (abs(xAdd) > 1 || abs(yAdd) > 1)
 		return (-1);
 	if (abs(xAdd) != 1 && abs(yAdd) != 1)
 		return (-1);
-	}
 	return (KING_NORMAL);
 }
 
@@ -180,15 +182,19 @@ bool	isMovePossible(Data &data, int xAdd, int yAdd)
 			if (ret == KING_SHORT_CASTLE)
 			{
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + 1].piece = data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece;
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + 1].piece->setHasMoved(true);
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece = nullptr;
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + 2].piece = data.grabbedPiece;
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + 2].piece->setHasMoved(true);
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
 			}
 			if (ret == KING_LONG_CASTLE)
 			{
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - 1].piece = data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece;
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - 1].piece->setHasMoved(true);
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece = nullptr;
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - 2].piece = data.grabbedPiece;
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - 2].piece->setHasMoved(true);
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
 			}
 			return (false);
@@ -213,6 +219,8 @@ void	placePiece(Data &data)
 			{
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
 				data.square[y][x].piece = data.grabbedPiece;
+				if (!data.grabbedPiece->getHasMoved())
+					data.grabbedPiece->setHasMoved(true);
 			}
 		}
 		data.grabbedPiece->setGrabbed(false);
