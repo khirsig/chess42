@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/23 16:01:06 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/23 17:50:45 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,7 +187,7 @@ bool	isMovePossible(Data &data, int xAdd, int yAdd)
 			if (ret == KING_LONG_CASTLE)
 			{
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - 1].piece = data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece;
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - xAdd].piece = nullptr;
+				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece = nullptr;
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - 2].piece = data.grabbedPiece;
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
 			}
