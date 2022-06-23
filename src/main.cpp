@@ -6,19 +6,19 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/23 17:59:45 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/23 23:03:16 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Data.hpp"
 
-int	kingMove(Data &data, int xAdd, int yAdd)
+int	kingMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd)
 {
 	if (abs(xAdd) > 0 && yAdd == 0
-		&& data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece != nullptr
-		&& data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece->getType() == ROOK
-		&& !data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece->getHasMoved()
-		&& !data.grabbedPiece->getHasMoved())
+		&& data.square[pieceY][pieceX + xAdd].piece != nullptr
+		&& data.square[pieceY][pieceX + xAdd].piece->getType() == ROOK
+		&& !data.square[pieceY][pieceX + xAdd].piece->getHasMoved()
+		&& !piece->getHasMoved())
 	{
 		int incr;
 		if (xAdd > 0)
@@ -28,13 +28,13 @@ int	kingMove(Data &data, int xAdd, int yAdd)
 		int x = incr;
 		while ((incr == 1 && x <= xAdd) || (incr == -1 && x >= xAdd))
 		{
-			if (data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + x].piece != nullptr && x != xAdd)
+			if (data.square[pieceY][pieceX + x].piece != nullptr && x != xAdd)
 				return (-1);
-			if (data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + x].piece != nullptr && x == xAdd)
+			if (data.square[pieceY][pieceX + x].piece != nullptr && x == xAdd)
 			{
-				if (data.grabbedPiecePosX + x == 0)
+				if (pieceX + x == 0)
 					return (KING_LONG_CASTLE);
-				else if (data.grabbedPiecePosX + x == 7)
+				else if (pieceX + x == 7)
 					return (KING_SHORT_CASTLE);
 				return (-1);
 			}
@@ -48,7 +48,7 @@ int	kingMove(Data &data, int xAdd, int yAdd)
 	return (KING_NORMAL);
 }
 
-bool	rookMove(Data &data, int xAdd, int yAdd)
+bool	rookMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 {
 	if (xAdd != 0 && yAdd != 0)
 		return (false);
@@ -68,7 +68,7 @@ bool	rookMove(Data &data, int xAdd, int yAdd)
 
 	while (((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd) || (yIncr == 0)) && ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd) || (xIncr == 0)))
 	{
-		if (data.square[data.grabbedPiecePosY + y][data.grabbedPiecePosX + x].piece != nullptr && (x != xAdd || y != yAdd))
+		if (data.square[pieceY + y][pieceX + x].piece != nullptr && (x != xAdd || y != yAdd))
 			return (false);
 
 		if ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd))
@@ -86,7 +86,7 @@ bool	knightMove(Data &data, int xAdd, int yAdd)
 	return (true);
 }
 
-bool	bishopMove(Data &data, int xAdd, int yAdd)
+bool	bishopMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 {
 	if (xAdd == 0 || yAdd == 0)
 		return (false);
@@ -108,7 +108,7 @@ bool	bishopMove(Data &data, int xAdd, int yAdd)
 
 	while (((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd) || (yIncr == 0)) && ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd) || (xIncr == 0)))
 	{
-		if (data.square[data.grabbedPiecePosY + y][data.grabbedPiecePosX + x].piece != nullptr && (x != xAdd || y != yAdd))
+		if (data.square[pieceY + y][pieceX + x].piece != nullptr && (x != xAdd || y != yAdd))
 			return (false);
 
 		if ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd))
@@ -119,13 +119,13 @@ bool	bishopMove(Data &data, int xAdd, int yAdd)
 	return (true);
 }
 
-bool	pawnMove(Data &data, int xAdd, int yAdd)
+bool	pawnMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck)
 {
-	if ((yAdd > 0 && data.grabbedPiece->getOwner() == WHITE_P) || (yAdd < 0 && data.grabbedPiece->getOwner() == BLACK_P))
+	if ((yAdd > 0 && piece->getOwner() == WHITE_P) || (yAdd < 0 && piece->getOwner() == BLACK_P))
 		return (false);
 	if (yAdd > 2 || yAdd < -2)
 		return (false);
-	if ((yAdd > 1 && data.grabbedPiecePosY != 1) || (yAdd < -1 && data.grabbedPiecePosY != 6))
+	if ((yAdd > 1 && pieceY != 1) || (yAdd < -1 && pieceY != 6))
 			return (false);
 	if (xAdd != 0 && yAdd == 0)
 		return (false);
@@ -141,26 +141,28 @@ bool	pawnMove(Data &data, int xAdd, int yAdd)
 
 	while ((incr == 1 && i <= yAdd) || (incr == -1 && i >= yAdd))
 	{
-		if (data.square[data.grabbedPiecePosY + i][data.grabbedPiecePosX + xAdd].piece != nullptr && xAdd == 0)
+		if (data.square[pieceY + i][pieceX + xAdd].piece != nullptr && xAdd == 0)
 			return (false);
-		if (data.square[data.grabbedPiecePosY + i][data.grabbedPiecePosX + xAdd].piece == nullptr && xAdd != 0)
+		if (data.square[pieceY + i][pieceX + xAdd].piece == nullptr && xAdd != 0)
 			return (false);
 		i += incr;
 	}
+	if (abs(pieceX) == 0 && lookForCheck)
+		return (false);
 	return (true);
 }
 
-bool	isMovePossible(Data &data, int xAdd, int yAdd)
+bool	isMovePossible(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck)
 {
 	if (xAdd == 0 && yAdd == 0)
 		return (false);
-	switch (data.grabbedPiece->getType()) {
+	switch (piece->getType()) {
 		case PAWN :
-			if (pawnMove(data, xAdd, yAdd))
+			if (pawnMove(data, piece, pieceX, pieceY, xAdd, yAdd, lookForCheck))
 				return (true);
 			break ;
 		case BISHOP :
-			if (bishopMove(data, xAdd, yAdd))
+			if (bishopMove(data, pieceX, pieceY, xAdd, yAdd))
 				return (true);
 			break ;
 		case KNIGHT :
@@ -168,37 +170,59 @@ bool	isMovePossible(Data &data, int xAdd, int yAdd)
 				return (true);
 			break;
 		case ROOK :
-			if (rookMove(data, xAdd, yAdd))
+			if (rookMove(data, pieceX, pieceY, xAdd, yAdd))
 				return (true);
 			break ;
 		case QUEEN :
-			if (bishopMove(data, xAdd, yAdd) || rookMove(data, xAdd, yAdd))
+			if (bishopMove(data, pieceX, pieceY, xAdd, yAdd) || rookMove(data, pieceX, pieceY, xAdd, yAdd))
 				return (true);
 			break ;
 		case KING :
-			int ret = kingMove(data, xAdd, yAdd);
+			int ret = kingMove(data, piece, pieceX, pieceY, xAdd, yAdd);
 			if (ret == KING_NORMAL)
 				return (true);
 			if (ret == KING_SHORT_CASTLE)
 			{
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + 1].piece = data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece;
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + 1].piece->setHasMoved(true);
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece = nullptr;
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + 2].piece = data.grabbedPiece;
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + 2].piece->setHasMoved(true);
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
+				data.square[pieceY][pieceX + 1].piece = data.square[pieceY][pieceX + xAdd].piece;
+				data.square[pieceY][pieceX + 1].piece->setHasMoved(true);
+				data.square[pieceY][pieceX + xAdd].piece = nullptr;
+				data.square[pieceY][pieceX + 2].piece = piece;
+				data.square[pieceY][pieceX + 2].piece->setHasMoved(true);
+				data.square[pieceY][pieceX].piece = nullptr;
 			}
 			if (ret == KING_LONG_CASTLE)
 			{
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - 1].piece = data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece;
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - 1].piece->setHasMoved(true);
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX + xAdd].piece = nullptr;
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - 2].piece = data.grabbedPiece;
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX - 2].piece->setHasMoved(true);
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
+				data.square[pieceY][pieceX - 1].piece = data.square[pieceY][pieceX + xAdd].piece;
+				data.square[pieceY][pieceX - 1].piece->setHasMoved(true);
+				data.square[pieceY][pieceX + xAdd].piece = nullptr;
+				data.square[pieceY][pieceX - 2].piece = piece;
+				data.square[pieceY][pieceX - 2].piece->setHasMoved(true);
+				data.square[pieceY][pieceX].piece = nullptr;
 			}
 			return (false);
 			break ;
+	}
+	return (false);
+}
+
+bool	lookForCheck(Data &data, int player)
+{
+	int otherPlayer;
+
+	if (player == WHITE_P)
+		otherPlayer = BLACK_P;
+	else
+		otherPlayer = WHITE_P;
+	for (int y = 0; y < 8; ++y)
+	{
+		for (int x = 0; x < 8; ++x)
+		{
+			if (data.square[y][x].piece && data.square[y][x].piece->getOwner() == otherPlayer)
+			{
+				if (isMovePossible(data, data.square[y][x].piece, x, y, data.kingPosX[player] - x, data.kingPosY[player] - y, true))
+					return (true);
+			}
+		}
 	}
 	return (false);
 }
@@ -213,20 +237,55 @@ void	placePiece(Data &data)
 
 		x /= size;
 		y /= size;
-		if (isMovePossible(data, x - data.grabbedPiecePosX, y - data.grabbedPiecePosY))
+		if (isMovePossible(data, data.grabbedPiece, data.grabbedPiecePosX, data.grabbedPiecePosY, x - data.grabbedPiecePosX, y - data.grabbedPiecePosY, false))
 		{
 			if ((data.square[y][x].piece != nullptr && data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece->getOwner() != data.square[y][x].piece->getOwner()) || data.square[y][x].piece == nullptr)
 			{
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
+				ChessPiece *deletedPiece = nullptr;
+				if (data.square[y][x].piece)
+					deletedPiece = data.square[y][x].piece;
 				data.square[y][x].piece = data.grabbedPiece;
-				if (!data.grabbedPiece->getHasMoved())
-					data.grabbedPiece->setHasMoved(true);
+
+				int player = data.square[y][x].piece->getOwner();
+
+				if (data.grabbedPiece->getType() == KING)
+				{
+					data.kingPosX[data.grabbedPiece->getOwner()] = x;
+					data.kingPosY[data.grabbedPiece->getOwner()] = y;
+				}
+				if (lookForCheck(data, player))
+				{
+					if (deletedPiece)
+						data.square[y][x].piece = deletedPiece;
+					else
+						data.square[y][x].piece = nullptr;
+					data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = data.grabbedPiece;
+					if (data.grabbedPiece->getType() == KING)
+					{
+						data.kingPosX[data.grabbedPiece->getOwner()] = data.grabbedPiecePosX;
+						data.kingPosY[data.grabbedPiece->getOwner()] = data.grabbedPiecePosY;
+					}
+				}
+				else
+				{
+					if (!data.grabbedPiece->getHasMoved())
+						data.grabbedPiece->setHasMoved(true);
+				}
 			}
 		}
 		data.grabbedPiece->setGrabbed(false);
 		data.grabbedPiece = nullptr;
 		data.grabbedPiecePosX = -1;
 		data.grabbedPiecePosY = -1;
+		if (lookForCheck(data, WHITE_P))
+			data.kingCheck[WHITE_P] = true;
+		else
+			data.kingCheck[WHITE_P] = false;
+		if (lookForCheck(data, BLACK_P))
+			data.kingCheck[BLACK_P] = true;
+		else
+			data.kingCheck[BLACK_P] = false;
 	}
 
 }
@@ -286,7 +345,11 @@ void	initPieces(Data &data)
 		if (i == 4)
 		{
 			data.square[7][i].piece = new ChessPiece(WHITE_P, KING);
+			data.kingPosX[WHITE_P] = i;
+			data.kingPosY[WHITE_P] = 7;
 			data.square[0][i].piece = new ChessPiece(BLACK_P, KING);
+			data.kingPosX[BLACK_P] = i;
+			data.kingPosY[BLACK_P] = 0;
 		}
 	}
 }
@@ -405,7 +468,12 @@ void	drawBoard(Data &data)
 	{
 		for (int y = 0; y < 8; ++y)
 		{
-			if (y % 2 == 0)
+			if ((y == data.kingPosY[WHITE_P] && x == data.kingPosX[WHITE_P] && data.kingCheck[WHITE_P])
+				|| (y == data.kingPosY[BLACK_P] && x == data.kingPosX[BLACK_P] && data.kingCheck[BLACK_P]))
+			{
+					DrawRectangle(size * x, size * y, size, size, RED);
+			}
+			else if (y % 2 == 0)
 			{
 				if (x % 2 == 0)
 					DrawRectangle(size * x, size * y, size, size, data.primaryColor);

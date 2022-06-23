@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/23 15:54:16 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/23 22:00:00 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,9 @@ struct Data {
 	int									grabbedPiecePosX;
 	int									grabbedPiecePosY;
 	bool								PlayerHasCastled[2];
+	int									kingPosX[2];
+	int									kingPosY[2];
+	bool								kingCheck[2] = { false, false };
 };
 
 
