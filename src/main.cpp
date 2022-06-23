@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/20 17:01:01 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/23 09:03:51 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -256,7 +256,49 @@ void	initTex(Data &data)
 	}
 }
 
-void	drawPiece(Data &data)
+void	drawPiece(Data &data, int pieceType, int pieceOwner, raylib::Vector2 pos, float scale)
+{
+	switch (pieceType) {
+		case PAWN :
+			if (pieceOwner == WHITE_P)
+				DrawTextureEx(data.tex[0], pos, 0, scale, WHITE);
+			else
+				DrawTextureEx(data.tex[1], pos, 0, scale, WHITE);
+			break ;
+		case BISHOP :
+			if (pieceOwner == WHITE_P)
+				DrawTextureEx(data.tex[2], pos, 0, scale, WHITE);
+			else
+				DrawTextureEx(data.tex[3], pos, 0, scale, WHITE);
+			break ;
+		case KNIGHT :
+			if (pieceOwner == WHITE_P)
+				DrawTextureEx(data.tex[4], pos, 0, scale, WHITE);
+			else
+				DrawTextureEx(data.tex[5], pos, 0, scale, WHITE);
+			break ;
+		case ROOK :
+			if (pieceOwner == WHITE_P)
+				DrawTextureEx(data.tex[6], pos, 0, scale, WHITE);
+			else
+				DrawTextureEx(data.tex[7], pos, 0, scale, WHITE);
+			break ;
+		case QUEEN :
+			if (pieceOwner == WHITE_P)
+				DrawTextureEx(data.tex[8], pos, 0, scale, WHITE);
+			else
+				DrawTextureEx(data.tex[9], pos, 0, scale, WHITE);
+			break ;
+		case KING :
+			if (pieceOwner == WHITE_P)
+				DrawTextureEx(data.tex[10], pos, 0, scale, WHITE);
+			else
+				DrawTextureEx(data.tex[11], pos, 0, scale, WHITE);
+			break ;
+	}
+}
+
+void	drawAllPieces(Data &data)
 {
 	int size = SCREEN_WIDTH / 8;
 
@@ -271,57 +313,26 @@ void	drawPiece(Data &data)
 
 				int	pieceType = data.square[y][x].piece->getType();
 				int pieceOwner = data.square[y][x].piece->getOwner();
-				if (data.square[y][x].piece->getGrabbed())
-				{
-					pos.x = GetMouseX() - size / 2;
-					pos.y = GetMouseY() - size / 2;
-				}
-				else
-				{
-					pos.x = x * size;
-					pos.y = y * size;
-				}
+				pos.x = x * size;
+				pos.y = y * size;
 				scale = (float)size / 1280;
-				switch (pieceType) {
-					case PAWN :
-						if (pieceOwner == WHITE_P)
-							DrawTextureEx(data.tex[0], pos, 0, scale, WHITE);
-						else
-							DrawTextureEx(data.tex[1], pos, 0, scale, WHITE);
-						break ;
-					case BISHOP :
-						if (pieceOwner == WHITE_P)
-							DrawTextureEx(data.tex[2], pos, 0, scale, WHITE);
-						else
-							DrawTextureEx(data.tex[3], pos, 0, scale, WHITE);
-						break ;
-					case KNIGHT :
-						if (pieceOwner == WHITE_P)
-							DrawTextureEx(data.tex[4], pos, 0, scale, WHITE);
-						else
-							DrawTextureEx(data.tex[5], pos, 0, scale, WHITE);
-						break ;
-					case ROOK :
-						if (pieceOwner == WHITE_P)
-							DrawTextureEx(data.tex[6], pos, 0, scale, WHITE);
-						else
-							DrawTextureEx(data.tex[7], pos, 0, scale, WHITE);
-						break ;
-					case QUEEN :
-						if (pieceOwner == WHITE_P)
-							DrawTextureEx(data.tex[8], pos, 0, scale, WHITE);
-						else
-							DrawTextureEx(data.tex[9], pos, 0, scale, WHITE);
-						break ;
-					case KING :
-						if (pieceOwner == WHITE_P)
-							DrawTextureEx(data.tex[10], pos, 0, scale, WHITE);
-						else
-							DrawTextureEx(data.tex[11], pos, 0, scale, WHITE);
-						break ;
-				}
+				if (!data.square[y][x].piece->getGrabbed())
+					drawPiece(data, pieceType, pieceOwner, pos, scale);
 			}
 		}
+	}
+	if (data.grabbedPiece)
+	{
+		raylib::Vector2	pos;
+		float			scale;
+
+		int	pieceType = data.grabbedPiece->getType();
+		int pieceOwner = data.grabbedPiece->getOwner();
+
+		pos.x = GetMouseX() - size / 2;
+		pos.y = GetMouseY() - size / 2;
+		scale = (float)size / 1280;
+		drawPiece(data, pieceType, pieceOwner, pos, scale);
 	}
 }
 
@@ -368,7 +379,7 @@ int	main()
 		// DRAWING
 		ClearBackground(RAYWHITE);
 		drawBoard(data);
-		drawPiece(data);
+		drawAllPieces(data);
 		EndDrawing();
 	}
 	CloseWindow();
