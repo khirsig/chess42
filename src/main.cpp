@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/24 15:40:09 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/24 18:54:45 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -257,21 +257,48 @@ bool	lookForCheck(Data &data, int player)
 	return (false);
 }
 
+void	toggleCheckBothPlayers(Data &data)
+{
+		if (lookForCheck(data, WHITE_P))
+			data.kingCheck[WHITE_P] = true;
+		else
+			data.kingCheck[WHITE_P] = false;
+		if (lookForCheck(data, BLACK_P))
+			data.kingCheck[BLACK_P] = true;
+		else
+			data.kingCheck[BLACK_P] = false;
+}
+
 void	moveThroughHistory(Data &data)
 {
 	if (data.history.size() > 0 && IsKeyPressed(KEY_LEFT) && data.moveNbr >= 0)
 	{
-		std::cout << "Move NBR:  " << data.moveNbr << std::endl;
-		std::cout << "FromX:  " << data.history[data.moveNbr].fromX << std::endl;
-		std::cout << "FromY:  " << data.history[data.moveNbr].fromY << std::endl;
-		std::cout << "ToX:  " << data.history[data.moveNbr].toX << std::endl;
-		std::cout << "ToY:  " << data.history[data.moveNbr].toY << std::endl;
 		if (data.history[data.moveNbr].removedPiece)
 			data.square[data.history[data.moveNbr].toY][data.history[data.moveNbr].toX].piece = data.history[data.moveNbr].removedPiece;
 		else
 			data.square[data.history[data.moveNbr].toY][data.history[data.moveNbr].toX].piece = nullptr;
 		data.square[data.history[data.moveNbr].fromY][data.history[data.moveNbr].fromX].piece = data.history[data.moveNbr].movedPiece;
+		if (data.moveNbr - 1 >= 0)
+		{
+			data.lastMove[0] = &data.square[data.history[data.moveNbr - 1].fromY][data.history[data.moveNbr - 1].fromX];
+			data.lastMove[1] = &data.square[data.history[data.moveNbr - 1].toY][data.history[data.moveNbr - 1].toX];
+		}
+		else
+		{
+			data.lastMove[0] = nullptr;
+			data.lastMove[1] = nullptr;
+		}
 		data.moveNbr--;
+		toggleCheckBothPlayers(data);
+	}
+	if (data.history.size() > 0 && IsKeyPressed(KEY_RIGHT) && (data.moveNbr < data.history.size() - 1 || data.moveNbr == -1))
+	{
+		data.moveNbr++;
+		data.square[data.history[data.moveNbr].fromY][data.history[data.moveNbr].fromX].piece = nullptr;
+		data.square[data.history[data.moveNbr].toY][data.history[data.moveNbr].toX].piece = data.history[data.moveNbr].movedPiece;
+		data.lastMove[0] = &data.square[data.history[data.moveNbr].fromY][data.history[data.moveNbr].fromX];
+		data.lastMove[1] = &data.square[data.history[data.moveNbr].toY][data.history[data.moveNbr].toX];
+		toggleCheckBothPlayers(data);
 	}
 }
 
@@ -335,13 +362,14 @@ void	placePiece(Data &data)
 					// The square from - to the move happened are saved for different color in board drawing.
 					data.lastMove[0] = &data.square[data.grabbedPiecePosY][data.grabbedPiecePosX];
 					data.lastMove[1] = &data.square[y][x];
-					// if (data.moveNbr != -1 && data.moveNbr < data.history.size() - 1)
-					// {
-					// 	for (int i = data.history.size() - 1; i >= data.moveNbr; --i)
-					// 		data.history.pop_back();
-					// }
+					if (data.moveNbr < data.history.size() - 1)
+					{
+						int	elemToDelete = (int) data.history.size() - 1 - data.moveNbr;
+						for (int i = 0; i < elemToDelete; ++i)
+							data.history.pop_back();
+					}
 					History	history;
-					history.movedPiece = data.square[y][x].piece;
+					history.movedPiece = data.grabbedPiece;
 					if (deletedPiece != nullptr)
 						history.removedPiece = deletedPiece;
 					history.fromX = data.grabbedPiecePosX;
@@ -361,14 +389,7 @@ void	placePiece(Data &data)
 		data.grabbedPiecePosX = -1;
 		data.grabbedPiecePosY = -1;
 		// After everything is over looks for checks on both players. If one king is in check sets the bool for board drawing.
-		if (lookForCheck(data, WHITE_P))
-			data.kingCheck[WHITE_P] = true;
-		else
-			data.kingCheck[WHITE_P] = false;
-		if (lookForCheck(data, BLACK_P))
-			data.kingCheck[BLACK_P] = true;
-		else
-			data.kingCheck[BLACK_P] = false;
+		toggleCheckBothPlayers(data);
 	}
 
 }
@@ -611,7 +632,6 @@ int	main()
 		placePiece(data);
 		moveThroughHistory(data);
 		// START DRAWING
-		std::cout << "Start Draw" << std::endl;
 		ClearBackground(RAYWHITE);
 		drawBoard(data);
 		drawAllPieces(data);
