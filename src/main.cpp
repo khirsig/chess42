@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/23 23:03:16 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/24 09:24:38 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,6 +188,7 @@ bool	isMovePossible(Data &data, ChessPiece *piece, int pieceX, int pieceY, int x
 				data.square[pieceY][pieceX + xAdd].piece = nullptr;
 				data.square[pieceY][pieceX + 2].piece = piece;
 				data.square[pieceY][pieceX + 2].piece->setHasMoved(true);
+				data.kingPosX[data.square[pieceY][pieceX + 2].piece->getOwner()] = pieceX + 2;
 				data.square[pieceY][pieceX].piece = nullptr;
 			}
 			if (ret == KING_LONG_CASTLE)
@@ -197,6 +198,7 @@ bool	isMovePossible(Data &data, ChessPiece *piece, int pieceX, int pieceY, int x
 				data.square[pieceY][pieceX + xAdd].piece = nullptr;
 				data.square[pieceY][pieceX - 2].piece = piece;
 				data.square[pieceY][pieceX - 2].piece->setHasMoved(true);
+				data.kingPosX[data.square[pieceY][pieceX - 2].piece->getOwner()] = pieceX - 2;
 				data.square[pieceY][pieceX].piece = nullptr;
 			}
 			return (false);

@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/23 22:00:00 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/24 09:19:16 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@
 # include "../raylib-cpp/include/raylib-cpp.hpp"
 # include "./BoardSquare.hpp"
 
-# define SCREEN_WIDTH 800
-# define SCREEN_HEIGHT 800
+# define SCREEN_WIDTH 1000
+# define SCREEN_HEIGHT 1000
 
 # define CHECK 1
 # define MATE 2
