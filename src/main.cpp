@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/24 11:51:50 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/24 15:40:09 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -257,6 +257,24 @@ bool	lookForCheck(Data &data, int player)
 	return (false);
 }
 
+void	moveThroughHistory(Data &data)
+{
+	if (data.history.size() > 0 && IsKeyPressed(KEY_LEFT) && data.moveNbr >= 0)
+	{
+		std::cout << "Move NBR:  " << data.moveNbr << std::endl;
+		std::cout << "FromX:  " << data.history[data.moveNbr].fromX << std::endl;
+		std::cout << "FromY:  " << data.history[data.moveNbr].fromY << std::endl;
+		std::cout << "ToX:  " << data.history[data.moveNbr].toX << std::endl;
+		std::cout << "ToY:  " << data.history[data.moveNbr].toY << std::endl;
+		if (data.history[data.moveNbr].removedPiece)
+			data.square[data.history[data.moveNbr].toY][data.history[data.moveNbr].toX].piece = data.history[data.moveNbr].removedPiece;
+		else
+			data.square[data.history[data.moveNbr].toY][data.history[data.moveNbr].toX].piece = nullptr;
+		data.square[data.history[data.moveNbr].fromY][data.history[data.moveNbr].fromX].piece = data.history[data.moveNbr].movedPiece;
+		data.moveNbr--;
+	}
+}
+
 void	placePiece(Data &data)
 {
 	// Checks if the left mouse button is released while we had a piece grabbed.
@@ -317,6 +335,21 @@ void	placePiece(Data &data)
 					// The square from - to the move happened are saved for different color in board drawing.
 					data.lastMove[0] = &data.square[data.grabbedPiecePosY][data.grabbedPiecePosX];
 					data.lastMove[1] = &data.square[y][x];
+					// if (data.moveNbr != -1 && data.moveNbr < data.history.size() - 1)
+					// {
+					// 	for (int i = data.history.size() - 1; i >= data.moveNbr; --i)
+					// 		data.history.pop_back();
+					// }
+					History	history;
+					history.movedPiece = data.square[y][x].piece;
+					if (deletedPiece != nullptr)
+						history.removedPiece = deletedPiece;
+					history.fromX = data.grabbedPiecePosX;
+					history.fromY = data.grabbedPiecePosY;
+					history.toX = x;
+					history.toY = y;
+					data.history.push_back(history);
+					data.moveNbr++;
 				}
 			}
 		}
@@ -487,9 +520,9 @@ void	drawAllPieces(Data &data)
 	int size = SCREEN_WIDTH / 8;
 
 	// Iterating through all possible boardsquares.
-	for (int x = 0; x < 8; ++x)
+	for (int x = 7; x >= 0; --x)
 	{
-		for (int y = 0; y < 8; ++y)
+		for (int y = 7; y >= 0; --y)
 		{
 			// Checking if there is an actual piece on the current square
 			if (data.square[y][x].piece != nullptr)
@@ -551,12 +584,12 @@ void	drawBoard(Data &data)
 				else
 					DrawRectangle(size * x, size * y, size, size, data.primaryColor);
 			}
-			// If the current square's address matches with one where the last move was made paint orange/yellow square over it.
+			// If the current square's address matches with one where the last move was made paint gray square over it.
 			if (&data.square[y][x] == data.lastMove[0] || &data.square[y][x] == data.lastMove[1])
 			{
-				raylib::Color lastMoveYellow(ORANGE);
-				lastMoveYellow.a = 200;
-				DrawRectangle(size * x, size * y, size, size, lastMoveYellow);
+				raylib::Color lastMoveCol(GRAY);
+				lastMoveCol.a = 200;
+				DrawRectangle(size * x, size * y, size, size, lastMoveCol);
 			}
 		}
 	}
@@ -576,7 +609,9 @@ int	main()
 		// ACTIONS
 		grabPiece(data);
 		placePiece(data);
+		moveThroughHistory(data);
 		// START DRAWING
+		std::cout << "Start Draw" << std::endl;
 		ClearBackground(RAYWHITE);
 		drawBoard(data);
 		drawAllPieces(data);

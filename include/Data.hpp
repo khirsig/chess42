@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/24 09:30:37 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/24 15:39:01 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <iostream>
 # include "../raylib-cpp/include/raylib-cpp.hpp"
 # include "./BoardSquare.hpp"
+# include "History.hpp"
 
 # define SCREEN_WIDTH 1000
 # define SCREEN_HEIGHT 1000
@@ -34,6 +35,8 @@ struct Data {
 	raylib::Color						primaryColor = RAYWHITE;
 	raylib::Color						secondaryColor = BLUE;
 	std::vector<raylib::Texture2D>		tex;
+	std::vector<History>				history;
+	int									moveNbr = -1;
 	ChessPiece							*grabbedPiece = nullptr;
 	int									grabbedPiecePosX;
 	int									grabbedPiecePosY;
