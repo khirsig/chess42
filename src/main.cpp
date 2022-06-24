@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/24 10:41:37 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/24 11:51:50 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 int	kingMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd)
 {
+	// The first case checks if we try to castle.
+	// It checks if the piece on the target square a rook and if any of the involved pieces have already moved.
 	if (abs(xAdd) > 0 && yAdd == 0
 		&& data.square[pieceY][pieceX + xAdd].piece != nullptr
 		&& data.square[pieceY][pieceX + xAdd].piece->getType() == ROOK
@@ -26,6 +28,7 @@ int	kingMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, in
 		else
 			incr = -1;
 		int x = incr;
+		// The loop checks if we do not jump over pieces while castling
 		while ((incr == 1 && x <= xAdd) || (incr == -1 && x >= xAdd))
 		{
 			if (data.square[pieceY][pieceX + x].piece != nullptr && x != xAdd)
@@ -41,6 +44,7 @@ int	kingMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, in
 			x += incr;
 		}
 	}
+	// The last two cases check if the kings tries to move further than one field in his normal movement.
 	if (abs(xAdd) > 1 || abs(yAdd) > 1)
 		return (-1);
 	if (abs(xAdd) != 1 && abs(yAdd) != 1)
@@ -50,9 +54,12 @@ int	kingMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, in
 
 bool	rookMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 {
+	// The rook can only move on the straights. So if xAdd and yAdd are both != 0 returns false.
 	if (xAdd != 0 && yAdd != 0)
 		return (false);
 
+	// We set both the x increment value and the y increment value according if our xAdd and yAdd goal are positive or negative.
+	// This way we can iterate through the loop later in correct directions at the same time.
 	int	xIncr = 0;
 	if (xAdd > 0)
 		xIncr = 1;
@@ -66,6 +73,7 @@ bool	rookMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 	int x = xIncr;
 	int y = yIncr;
 
+	// This loop checks if the rook tries to jump over other pieces. If it tries to, return false.
 	while (((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd) || (yIncr == 0)) && ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd) || (xIncr == 0)))
 	{
 		if (data.square[pieceY + y][pieceX + x].piece != nullptr && (x != xAdd || y != yAdd))
@@ -88,11 +96,14 @@ bool	knightMove(Data &data, int xAdd, int yAdd)
 
 bool	bishopMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 {
+	// Checks if the bishop moves only in diagonals, if not returns false
 	if (xAdd == 0 || yAdd == 0)
 		return (false);
 	if (abs(xAdd) != abs(yAdd))
 		return (false);
 
+	// We set both the x increment value and the y increment value according if our xAdd and yAdd goal are positive or negative
+	// This way we can iterate through the loop later in correct directions at the same time.
 	int	xIncr = 0;
 	if (xAdd > 0)
 		xIncr = 1;
@@ -106,6 +117,7 @@ bool	bishopMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 	int x = xIncr;
 	int y = yIncr;
 
+	// The loop makes sure that the bishop does not jump over pieces. If it tries to, returns false.
 	while (((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd) || (yIncr == 0)) && ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd) || (xIncr == 0)))
 	{
 		if (data.square[pieceY + y][pieceX + x].piece != nullptr && (x != xAdd || y != yAdd))
@@ -121,6 +133,9 @@ bool	bishopMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 
 bool	pawnMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck)
 {
+	// The Pawn can either move two fields if it has not been moved yet, or one field.
+	// Taking pieces is a bit different with pawns so we need a special check for it.
+	// If lookForCheck is true, we only look for the diagonal movement.
 	if ((yAdd > 0 && piece->getOwner() == WHITE_P) || (yAdd < 0 && piece->getOwner() == BLACK_P))
 		return (false);
 	if (yAdd > 2 || yAdd < -2)
@@ -154,8 +169,12 @@ bool	pawnMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, i
 
 bool	isMovePossible(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck)
 {
+	// If there is no range of a movement, the move is just not possible.
 	if (xAdd == 0 && yAdd == 0)
 		return (false);
+	// Since every piece has a different way of moving we need to find the right type first.
+	// Every piece has its own move function that checks if the fields it wants to move through are possible.
+	// The King has some special cases with castling.
 	switch (piece->getType()) {
 		case PAWN :
 			if (pawnMove(data, piece, pieceX, pieceY, xAdd, yAdd, lookForCheck))
@@ -183,6 +202,7 @@ bool	isMovePossible(Data &data, ChessPiece *piece, int pieceX, int pieceY, int x
 				return (true);
 			if (ret == KING_SHORT_CASTLE)
 			{
+				// If kingMove returns KING_SHORT_CASTLE or KING_LONG_CASTLE it does the according moves hardcoded.
 				data.square[pieceY][pieceX + 1].piece = data.square[pieceY][pieceX + xAdd].piece;
 				data.square[pieceY][pieceX + 1].piece->setHasMoved(true);
 				data.square[pieceY][pieceX + xAdd].piece = nullptr;
@@ -193,6 +213,7 @@ bool	isMovePossible(Data &data, ChessPiece *piece, int pieceX, int pieceY, int x
 			}
 			if (ret == KING_LONG_CASTLE)
 			{
+				// If kingMove returns KING_SHORT_CASTLE or KING_LONG_CASTLE it does the according moves hardcoded.
 				data.square[pieceY][pieceX - 1].piece = data.square[pieceY][pieceX + xAdd].piece;
 				data.square[pieceY][pieceX - 1].piece->setHasMoved(true);
 				data.square[pieceY][pieceX + xAdd].piece = nullptr;
