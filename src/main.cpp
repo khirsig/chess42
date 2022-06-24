@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/24 09:24:38 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/24 09:41:23 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -273,6 +273,8 @@ void	placePiece(Data &data)
 				{
 					if (!data.grabbedPiece->getHasMoved())
 						data.grabbedPiece->setHasMoved(true);
+					data.lastMove[0] = &data.square[data.grabbedPiecePosY][data.grabbedPiecePosX];
+					data.lastMove[1] = &data.square[y][x];
 				}
 			}
 		}
@@ -472,9 +474,7 @@ void	drawBoard(Data &data)
 		{
 			if ((y == data.kingPosY[WHITE_P] && x == data.kingPosX[WHITE_P] && data.kingCheck[WHITE_P])
 				|| (y == data.kingPosY[BLACK_P] && x == data.kingPosX[BLACK_P] && data.kingCheck[BLACK_P]))
-			{
 					DrawRectangle(size * x, size * y, size, size, RED);
-			}
 			else if (y % 2 == 0)
 			{
 				if (x % 2 == 0)
@@ -488,6 +488,12 @@ void	drawBoard(Data &data)
 					DrawRectangle(size * x, size * y, size, size, data.secondaryColor);
 				else
 					DrawRectangle(size * x, size * y, size, size, data.primaryColor);
+			}
+			if (&data.square[y][x] == data.lastMove[0] || &data.square[y][x] == data.lastMove[1])
+			{
+				raylib::Color lastMoveYellow(ORANGE);
+				lastMoveYellow.a = 200;
+				DrawRectangle(size * x, size * y, size, size, lastMoveYellow);
 			}
 		}
 	}
