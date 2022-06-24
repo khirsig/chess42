@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/24 09:41:23 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/24 10:41:37 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,26 +211,34 @@ bool	lookForCheck(Data &data, int player)
 {
 	int otherPlayer;
 
+	// Stores the other player than the owner of the player that could be in check.
 	if (player == WHITE_P)
 		otherPlayer = BLACK_P;
 	else
 		otherPlayer = WHITE_P;
+	// Iterates through all squares to find all pieces.
 	for (int y = 0; y < 8; ++y)
 	{
 		for (int x = 0; x < 8; ++x)
 		{
+			// Only looks at pieces of the opposite player, because only they could give a check.
 			if (data.square[y][x].piece && data.square[y][x].piece->getOwner() == otherPlayer)
 			{
+				// Looks if any of those pieces could make a theoretical move to the position of the king.
+				// We need the piece that could give check and its position and also the x and y value it would need to make that move.
+				// Last bool should be true because we're looking for a check, not moving.
 				if (isMovePossible(data, data.square[y][x].piece, x, y, data.kingPosX[player] - x, data.kingPosY[player] - y, true))
 					return (true);
 			}
 		}
 	}
+	// If no piece was able to move to the position of players king, return false.
 	return (false);
 }
 
 void	placePiece(Data &data)
 {
+	// Checks if the left mouse button is released while we had a piece grabbed.
 	if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && data.grabbedPiece != nullptr)
 	{
 		int size = SCREEN_WIDTH / 8;
@@ -239,30 +247,41 @@ void	placePiece(Data &data)
 
 		x /= size;
 		y /= size;
+		// Checks if the move from the position of the grabbed piece to the position of the mouse cursor is possible.
+		// To do so it needs a pointer to the piece, the grabbed piece position and the x and y value that would need to be added to it to make that move.
+		// Last bool should only be true if we're looking for a check.
 		if (isMovePossible(data, data.grabbedPiece, data.grabbedPiecePosX, data.grabbedPiecePosY, x - data.grabbedPiecePosX, y - data.grabbedPiecePosY, false))
 		{
+			// If the move is theoretically possible, checks if the square our piece lands on does not have any piece of the same owner on it, or is empty.
 			if ((data.square[y][x].piece != nullptr && data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece->getOwner() != data.square[y][x].piece->getOwner()) || data.square[y][x].piece == nullptr)
 			{
+				// If this is also true, makes the move.
 				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
+				// If there is an piece that would get overwritten, save the address just in case.
 				ChessPiece *deletedPiece = nullptr;
 				if (data.square[y][x].piece)
 					deletedPiece = data.square[y][x].piece;
 				data.square[y][x].piece = data.grabbedPiece;
 
+				// Player stores the owner of the piece that made the move.
 				int player = data.square[y][x].piece->getOwner();
 
+				// If any king made a move, updates the new position.
 				if (data.grabbedPiece->getType() == KING)
 				{
 					data.kingPosX[data.grabbedPiece->getOwner()] = x;
 					data.kingPosY[data.grabbedPiece->getOwner()] = y;
 				}
+				// Now after the move has been made, checks if there is any check for the player that made the move.
 				if (lookForCheck(data, player))
 				{
+					// If there is a check, the move will be reversed and the deleted piece will be put back in place.
 					if (deletedPiece)
 						data.square[y][x].piece = deletedPiece;
 					else
 						data.square[y][x].piece = nullptr;
 					data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = data.grabbedPiece;
+					// Also resets the position of the king if he was moved.
 					if (data.grabbedPiece->getType() == KING)
 					{
 						data.kingPosX[data.grabbedPiece->getOwner()] = data.grabbedPiecePosX;
@@ -271,17 +290,23 @@ void	placePiece(Data &data)
 				}
 				else
 				{
+					// If the piece really moved, set the bool hasMoved to true.
 					if (!data.grabbedPiece->getHasMoved())
 						data.grabbedPiece->setHasMoved(true);
+					// The square from - to the move happened are saved for different color in board drawing.
 					data.lastMove[0] = &data.square[data.grabbedPiecePosY][data.grabbedPiecePosX];
 					data.lastMove[1] = &data.square[y][x];
 				}
 			}
 		}
+		// In any case, if move made or not, the grabbed piece gets released and reset again.
+		// This happens always because the mouse button was released.
+		// It either made its move or it snaps back to original position.
 		data.grabbedPiece->setGrabbed(false);
 		data.grabbedPiece = nullptr;
 		data.grabbedPiecePosX = -1;
 		data.grabbedPiecePosY = -1;
+		// After everything is over looks for checks on both players. If one king is in check sets the bool for board drawing.
 		if (lookForCheck(data, WHITE_P))
 			data.kingCheck[WHITE_P] = true;
 		else
@@ -293,8 +318,11 @@ void	placePiece(Data &data)
 	}
 
 }
+
 void	grabPiece(Data &data)
 {
+	// If the left mouse button is pressed we set our grabbedPiece pointer to the piece that is on the current field.
+	// If there is no piece, nothing happens. If we already have one piece grabbed nothing happens.
 	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && data.grabbedPiece == nullptr)
 	{
 		int size = SCREEN_WIDTH / 8;
@@ -303,6 +331,7 @@ void	grabPiece(Data &data)
 
 		x /= size;
 		y /= size;
+		// Sets the pointer and also saves the position of the grabbed piece.
 		if (data.square[y][x].piece != nullptr)
 		{
 			data.grabbedPiece = data.square[y][x].piece;
@@ -315,6 +344,7 @@ void	grabPiece(Data &data)
 
 void	initPieces(Data &data)
 {
+	// First sets all chess piece pointers to nullptr.
 	for (int x = 0; x < 8; ++x)
 	{
 		for (int y = 0; y < 8; ++y)
@@ -322,6 +352,8 @@ void	initPieces(Data &data)
 			data.square[x][y].piece = nullptr;
 		}
 	}
+	// Iterates through all the x fields and puts the right pieces for both players on the board.
+	// We always know the right y value, so we only need one loop
 	for (int i = 0; i < 8; ++i)
 	{
 		data.square[6][i].piece = new ChessPiece(WHITE_P, PAWN);
@@ -360,6 +392,7 @@ void	initPieces(Data &data)
 
 std::string	getTexPath(int i)
 {
+	// Puts together the correct path to the piece graphics.
 	std::string texLink = "./resources/pieces/piece";
 
 	if (i < 10)
@@ -378,6 +411,7 @@ std::string	getTexPath(int i)
 
 void	initTex(Data &data)
 {
+	// Fills the texture vector with all the piece textures.
 	for (int i = 0; i < 12; ++i)
 	{
 		data.tex.push_back(raylib::Texture(getTexPath(i)));
@@ -386,6 +420,7 @@ void	initTex(Data &data)
 
 void	drawPiece(Data &data, int pieceType, int pieceOwner, raylib::Vector2 pos, float scale)
 {
+	// Looks for the correct piece type and owner and draws the right texture.
 	switch (pieceType) {
 		case PAWN :
 			if (pieceOwner == WHITE_P)
@@ -430,10 +465,12 @@ void	drawAllPieces(Data &data)
 {
 	int size = SCREEN_WIDTH / 8;
 
+	// Iterating through all possible boardsquares.
 	for (int x = 0; x < 8; ++x)
 	{
 		for (int y = 0; y < 8; ++y)
 		{
+			// Checking if there is an actual piece on the current square
 			if (data.square[y][x].piece != nullptr)
 			{
 				raylib::Vector2 pos;
@@ -444,11 +481,13 @@ void	drawAllPieces(Data &data)
 				pos.x = x * size;
 				pos.y = y * size;
 				scale = (float)size / 1280;
+				// If it is not the grabbed piece, draw it with the correct texture.
 				if (!data.square[y][x].piece->getGrabbed())
 					drawPiece(data, pieceType, pieceOwner, pos, scale);
 			}
 		}
 	}
+	// After all other pieces have been drawn, draw the grabbed piece last.
 	if (data.grabbedPiece)
 	{
 		raylib::Vector2	pos;
@@ -468,10 +507,12 @@ void	drawBoard(Data &data)
 {
 	int size = SCREEN_WIDTH / 8;
 
+	// Iterating through all possible boardsquares
 	for (int x = 0; x < 8; ++x)
 	{
 		for (int y = 0; y < 8; ++y)
 		{
+			//Checking if King is in check and on the current looked at field. If yes, draw in red. Else draw in primary or secondary color.
 			if ((y == data.kingPosY[WHITE_P] && x == data.kingPosX[WHITE_P] && data.kingCheck[WHITE_P])
 				|| (y == data.kingPosY[BLACK_P] && x == data.kingPosX[BLACK_P] && data.kingCheck[BLACK_P]))
 					DrawRectangle(size * x, size * y, size, size, RED);
@@ -489,6 +530,7 @@ void	drawBoard(Data &data)
 				else
 					DrawRectangle(size * x, size * y, size, size, data.primaryColor);
 			}
+			// If the current square's address matches with one where the last move was made paint orange/yellow square over it.
 			if (&data.square[y][x] == data.lastMove[0] || &data.square[y][x] == data.lastMove[1])
 			{
 				raylib::Color lastMoveYellow(ORANGE);
