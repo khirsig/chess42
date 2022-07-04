@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/24 15:39:01 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/06/24 22:38:55 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ struct Data {
 	int									kingPosY[2];
 	bool								kingCheck[2] = { false, false };
 	BoardSquare							*lastMove[2] = { nullptr, nullptr };
+	int									turn = WHITE_P;
 };
 
 

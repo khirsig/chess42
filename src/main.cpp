@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/24 18:54:45 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/04 23:35:57 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -378,6 +378,7 @@ void	placePiece(Data &data)
 					history.toY = y;
 					data.history.push_back(history);
 					data.moveNbr++;
+					data.turn = BLACK_P;
 				}
 			}
 		}
@@ -431,34 +432,34 @@ void	initPieces(Data &data)
 	// We always know the right y value, so we only need one loop
 	for (int i = 0; i < 8; ++i)
 	{
-		data.square[6][i].piece = new ChessPiece(WHITE_P, PAWN);
-		data.square[1][i].piece = new ChessPiece(BLACK_P, PAWN);
+		data.square[6][i].piece = new ChessPiece(WHITE_P, PAWN, 10);
+		data.square[1][i].piece = new ChessPiece(BLACK_P, PAWN, 10);
 		if (i == 1 || i == 6)
 		{
-			data.square[7][i].piece = new ChessPiece(WHITE_P, KNIGHT);
-			data.square[0][i].piece = new ChessPiece(BLACK_P, KNIGHT);
+			data.square[7][i].piece = new ChessPiece(WHITE_P, KNIGHT, 30);
+			data.square[0][i].piece = new ChessPiece(BLACK_P, KNIGHT, 30);
 		}
 		if (i == 2 || i == 5)
 		{
-			data.square[7][i].piece = new ChessPiece(WHITE_P, BISHOP);
-			data.square[0][i].piece = new ChessPiece(BLACK_P, BISHOP);
+			data.square[7][i].piece = new ChessPiece(WHITE_P, BISHOP, 30);
+			data.square[0][i].piece = new ChessPiece(BLACK_P, BISHOP, 30);
 		}
 		if (i == 0 || i == 7)
 		{
-			data.square[7][i].piece = new ChessPiece(WHITE_P, ROOK);
-			data.square[0][i].piece = new ChessPiece(BLACK_P, ROOK);
+			data.square[7][i].piece = new ChessPiece(WHITE_P, ROOK, 50);
+			data.square[0][i].piece = new ChessPiece(BLACK_P, ROOK, 50);
 		}
 		if (i == 3)
 		{
-			data.square[7][i].piece = new ChessPiece(WHITE_P, QUEEN);
-			data.square[0][i].piece = new ChessPiece(BLACK_P, QUEEN);
+			data.square[7][i].piece = new ChessPiece(WHITE_P, QUEEN, 90);
+			data.square[0][i].piece = new ChessPiece(BLACK_P, QUEEN, 90);
 		}
 		if (i == 4)
 		{
-			data.square[7][i].piece = new ChessPiece(WHITE_P, KING);
+			data.square[7][i].piece = new ChessPiece(WHITE_P, KING, 900);
 			data.kingPosX[WHITE_P] = i;
 			data.kingPosY[WHITE_P] = 7;
-			data.square[0][i].piece = new ChessPiece(BLACK_P, KING);
+			data.square[0][i].piece = new ChessPiece(BLACK_P, KING, 900);
 			data.kingPosX[BLACK_P] = i;
 			data.kingPosY[BLACK_P] = 0;
 		}
