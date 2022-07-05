@@ -6,7 +6,7 @@
 #    By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/10 09:02:38 by tjensen           #+#    #+#              #
-#    Updated: 2022/06/23 14:54:08 by khirsig          ###   ########.fr        #
+#    Updated: 2022/07/05 12:08:03 by khirsig          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,9 +17,10 @@
 NAME			:= chess42
 
 CC				:= c++
-CFLAGS			:= -std=c++0x -O3
+CFLAGS			:= -std=c++0x -g
 
-SRCS			:= main.cpp									\
+SRCS			:=	main.cpp									\
+					engine.cpp									\
 
 OS				:= $(shell uname -s)
 NUMPROC			:= 8

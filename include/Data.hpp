@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/24 22:38:55 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/05 13:45:26 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,10 @@ struct Data {
 	bool								kingCheck[2] = { false, false };
 	BoardSquare							*lastMove[2] = { nullptr, nullptr };
 	int									turn = WHITE_P;
+	int									waitAI = 0;
 };
 
-
-
+bool	isMovePossible(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck);
+void	moveAI(Data &data, BoardSquare currentBoard[8][8], int player);
 
 #endif

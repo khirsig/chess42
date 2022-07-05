@@ -6,11 +6,12 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/04 23:35:57 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/05 13:50:17 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Data.hpp"
+#include "../include/engine.hpp"
 
 int	kingMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd)
 {
@@ -302,7 +303,7 @@ void	moveThroughHistory(Data &data)
 	}
 }
 
-void	placePiece(Data &data)
+void	placePiece(Data &data, int player)
 {
 	// Checks if the left mouse button is released while we had a piece grabbed.
 	if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && data.grabbedPiece != nullptr)
@@ -316,7 +317,7 @@ void	placePiece(Data &data)
 		// Checks if the move from the position of the grabbed piece to the position of the mouse cursor is possible.
 		// To do so it needs a pointer to the piece, the grabbed piece position and the x and y value that would need to be added to it to make that move.
 		// Last bool should only be true if we're looking for a check.
-		if (isMovePossible(data, data.grabbedPiece, data.grabbedPiecePosX, data.grabbedPiecePosY, x - data.grabbedPiecePosX, y - data.grabbedPiecePosY, false))
+		if (data.turn == player && isMovePossible(data, data.grabbedPiece, data.grabbedPiecePosX, data.grabbedPiecePosY, x - data.grabbedPiecePosX, y - data.grabbedPiecePosY, false))
 		{
 			// If the move is theoretically possible, checks if the square our piece lands on does not have any piece of the same owner on it, or is empty.
 			if ((data.square[y][x].piece != nullptr && data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece->getOwner() != data.square[y][x].piece->getOwner()) || data.square[y][x].piece == nullptr)
@@ -630,7 +631,9 @@ int	main()
 		BeginDrawing();
 		// ACTIONS
 		grabPiece(data);
-		placePiece(data);
+		placePiece(data, WHITE_P);
+		if (data.turn == BLACK_P)
+			moveAI(data, data.square, BLACK_P);
 		moveThroughHistory(data);
 		// START DRAWING
 		ClearBackground(RAYWHITE);
