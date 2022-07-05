@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/05 13:50:17 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/05 16:26:36 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,28 +201,28 @@ bool	isMovePossible(Data &data, ChessPiece *piece, int pieceX, int pieceY, int x
 			int ret = kingMove(data, piece, pieceX, pieceY, xAdd, yAdd);
 			if (ret == KING_NORMAL)
 				return (true);
-			if (ret == KING_SHORT_CASTLE)
-			{
-				// If kingMove returns KING_SHORT_CASTLE or KING_LONG_CASTLE it does the according moves hardcoded.
-				data.square[pieceY][pieceX + 1].piece = data.square[pieceY][pieceX + xAdd].piece;
-				data.square[pieceY][pieceX + 1].piece->setHasMoved(true);
-				data.square[pieceY][pieceX + xAdd].piece = nullptr;
-				data.square[pieceY][pieceX + 2].piece = piece;
-				data.square[pieceY][pieceX + 2].piece->setHasMoved(true);
-				data.kingPosX[data.square[pieceY][pieceX + 2].piece->getOwner()] = pieceX + 2;
-				data.square[pieceY][pieceX].piece = nullptr;
-			}
-			if (ret == KING_LONG_CASTLE)
-			{
-				// If kingMove returns KING_SHORT_CASTLE or KING_LONG_CASTLE it does the according moves hardcoded.
-				data.square[pieceY][pieceX - 1].piece = data.square[pieceY][pieceX + xAdd].piece;
-				data.square[pieceY][pieceX - 1].piece->setHasMoved(true);
-				data.square[pieceY][pieceX + xAdd].piece = nullptr;
-				data.square[pieceY][pieceX - 2].piece = piece;
-				data.square[pieceY][pieceX - 2].piece->setHasMoved(true);
-				data.kingPosX[data.square[pieceY][pieceX - 2].piece->getOwner()] = pieceX - 2;
-				data.square[pieceY][pieceX].piece = nullptr;
-			}
+			// if (ret == KING_SHORT_CASTLE)
+			// {
+			// 	// If kingMove returns KING_SHORT_CASTLE or KING_LONG_CASTLE it does the according moves hardcoded.
+			// 	data.square[pieceY][pieceX + 1].piece = data.square[pieceY][pieceX + xAdd].piece;
+			// 	data.square[pieceY][pieceX + 1].piece->setHasMoved(true);
+			// 	data.square[pieceY][pieceX + xAdd].piece = nullptr;
+			// 	data.square[pieceY][pieceX + 2].piece = piece;
+			// 	data.square[pieceY][pieceX + 2].piece->setHasMoved(true);
+			// 	data.kingPosX[data.square[pieceY][pieceX + 2].piece->getOwner()] = pieceX + 2;
+			// 	data.square[pieceY][pieceX].piece = nullptr;
+			// }
+			// if (ret == KING_LONG_CASTLE)
+			// {
+			// 	// If kingMove returns KING_SHORT_CASTLE or KING_LONG_CASTLE it does the according moves hardcoded.
+			// 	data.square[pieceY][pieceX - 1].piece = data.square[pieceY][pieceX + xAdd].piece;
+			// 	data.square[pieceY][pieceX - 1].piece->setHasMoved(true);
+			// 	data.square[pieceY][pieceX + xAdd].piece = nullptr;
+			// 	data.square[pieceY][pieceX - 2].piece = piece;
+			// 	data.square[pieceY][pieceX - 2].piece->setHasMoved(true);
+			// 	data.kingPosX[data.square[pieceY][pieceX - 2].piece->getOwner()] = pieceX - 2;
+			// 	data.square[pieceY][pieceX].piece = nullptr;
+			// }
 			return (false);
 			break ;
 	}
