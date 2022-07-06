@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/06 01:15:23 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/06 09:51:38 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@
 # include "./BoardSquare.hpp"
 # include "History.hpp"
 
-# define SCREEN_WIDTH 1000
-# define SCREEN_HEIGHT 1000
+# define SCREEN_WIDTH 600
+# define SCREEN_HEIGHT 600
 
 # define CHECK 1
 # define MATE 2
@@ -51,7 +51,7 @@ struct Data {
 	int									depth;
 };
 
-bool	isMovePossible(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck);
+bool	isMovePossible(Data &data, BoardSquare currentSquare[8][8], ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck);
 void	moveAI(Data &data, BoardSquare currentBoard[8][8], int player);
 
 #endif

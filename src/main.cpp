@@ -6,21 +6,21 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/05 16:26:36 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/06 09:50:52 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Data.hpp"
 #include "../include/engine.hpp"
 
-int	kingMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd)
+int	kingMove(Data &data, BoardSquare currentSquare[8][8], ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd)
 {
 	// The first case checks if we try to castle.
 	// It checks if the piece on the target square a rook and if any of the involved pieces have already moved.
 	if (abs(xAdd) > 0 && yAdd == 0
-		&& data.square[pieceY][pieceX + xAdd].piece != nullptr
-		&& data.square[pieceY][pieceX + xAdd].piece->getType() == ROOK
-		&& !data.square[pieceY][pieceX + xAdd].piece->getHasMoved()
+		&& currentSquare[pieceY][pieceX + xAdd].piece != nullptr
+		&& currentSquare[pieceY][pieceX + xAdd].piece->getType() == ROOK
+		&& !currentSquare[pieceY][pieceX + xAdd].piece->getHasMoved()
 		&& !piece->getHasMoved())
 	{
 		int incr;
@@ -32,9 +32,9 @@ int	kingMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, in
 		// The loop checks if we do not jump over pieces while castling
 		while ((incr == 1 && x <= xAdd) || (incr == -1 && x >= xAdd))
 		{
-			if (data.square[pieceY][pieceX + x].piece != nullptr && x != xAdd)
+			if (currentSquare[pieceY][pieceX + x].piece != nullptr && x != xAdd)
 				return (-1);
-			if (data.square[pieceY][pieceX + x].piece != nullptr && x == xAdd)
+			if (currentSquare[pieceY][pieceX + x].piece != nullptr && x == xAdd)
 			{
 				if (pieceX + x == 0)
 					return (KING_LONG_CASTLE);
@@ -53,7 +53,7 @@ int	kingMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, in
 	return (KING_NORMAL);
 }
 
-bool	rookMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
+bool	rookMove(Data &data, BoardSquare currentSquare[8][8], int pieceX, int pieceY, int xAdd, int yAdd)
 {
 	// The rook can only move on the straights. So if xAdd and yAdd are both != 0 returns false.
 	if (xAdd != 0 && yAdd != 0)
@@ -77,7 +77,7 @@ bool	rookMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 	// This loop checks if the rook tries to jump over other pieces. If it tries to, return false.
 	while (((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd) || (yIncr == 0)) && ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd) || (xIncr == 0)))
 	{
-		if (data.square[pieceY + y][pieceX + x].piece != nullptr && (x != xAdd || y != yAdd))
+		if (currentSquare[pieceY + y][pieceX + x].piece != nullptr && (x != xAdd || y != yAdd))
 			return (false);
 
 		if ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd))
@@ -88,19 +88,23 @@ bool	rookMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 	return (true);
 }
 
-bool	knightMove(Data &data, int xAdd, int yAdd)
+bool	knightMove(Data &data, BoardSquare currentSquare[8][8], int owner, int pieceX, int pieceY, int xAdd, int yAdd)
 {
 	if (!((abs(xAdd) == 2 && abs(yAdd) == 1) || (abs(xAdd) == 1 && abs(yAdd) == 2)))
+		return (false);
+	if (currentSquare[pieceX + xAdd][pieceY + yAdd].piece && currentSquare[pieceX + xAdd][pieceY + yAdd].piece->getOwner() == owner)
 		return (false);
 	return (true);
 }
 
-bool	bishopMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
+bool	bishopMove(Data &data, BoardSquare currentSquare[8][8], int owner, int pieceX, int pieceY, int xAdd, int yAdd)
 {
 	// Checks if the bishop moves only in diagonals, if not returns false
 	if (xAdd == 0 || yAdd == 0)
 		return (false);
 	if (abs(xAdd) != abs(yAdd))
+		return (false);
+	if (currentSquare[pieceX + xAdd][pieceY + yAdd].piece && currentSquare[pieceX + xAdd][pieceY + yAdd].piece->getOwner() == owner)
 		return (false);
 
 	// We set both the x increment value and the y increment value according if our xAdd and yAdd goal are positive or negative
@@ -121,7 +125,7 @@ bool	bishopMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 	// The loop makes sure that the bishop does not jump over pieces. If it tries to, returns false.
 	while (((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd) || (yIncr == 0)) && ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd) || (xIncr == 0)))
 	{
-		if (data.square[pieceY + y][pieceX + x].piece != nullptr && (x != xAdd || y != yAdd))
+		if (currentSquare[pieceY + y][pieceX + x].piece != nullptr && (x != xAdd || y != yAdd))
 			return (false);
 
 		if ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd))
@@ -132,20 +136,28 @@ bool	bishopMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 	return (true);
 }
 
-bool	pawnMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck)
+bool	pawnMove(Data &data, BoardSquare currentSquare[8][8], ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck)
 {
 	// The Pawn can either move two fields if it has not been moved yet, or one field.
 	// Taking pieces is a bit different with pawns so we need a special check for it.
 	// If lookForCheck is true, we only look for the diagonal movement.
-	if ((yAdd > 0 && piece->getOwner() == WHITE_P) || (yAdd < 0 && piece->getOwner() == BLACK_P))
+	if (abs(yAdd) > 2 || abs(xAdd) > 1)
 		return (false);
-	if (yAdd > 2 || yAdd < -2)
-		return (false);
-	if ((yAdd > 1 && pieceY != 1) || (yAdd < -1 && pieceY != 6))
+	if (piece->getOwner() == WHITE_P)
+	{
+		if (pieceY != 6 && abs(yAdd) > 1)
 			return (false);
-	if (xAdd != 0 && yAdd == 0)
-		return (false);
-	if (xAdd > 1 || xAdd < -1)
+		if (yAdd == -1 && abs(xAdd) == 1 && currentSquare[pieceY + yAdd][pieceX + xAdd].piece && currentSquare[pieceY + yAdd][pieceX + xAdd].piece->getOwner() == BLACK_P)
+			return (true);
+	}
+	else
+	{
+		if (pieceY != 1 && abs(yAdd) > 1)
+			return (false);
+		if (yAdd == 1 && abs(xAdd) == 1 && currentSquare[pieceY + yAdd][pieceX + xAdd].piece && currentSquare[pieceY + yAdd][pieceX + xAdd].piece->getOwner() == WHITE_P)
+			return (true);
+	}
+	if (abs(yAdd) != 1 && abs(xAdd) >= 1)
 		return (false);
 
 	int	incr = 0;
@@ -157,18 +169,18 @@ bool	pawnMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, i
 
 	while ((incr == 1 && i <= yAdd) || (incr == -1 && i >= yAdd))
 	{
-		if (data.square[pieceY + i][pieceX + xAdd].piece != nullptr && xAdd == 0)
+		if (currentSquare[pieceY + i][pieceX + xAdd].piece != nullptr && xAdd == 0)
 			return (false);
-		if (data.square[pieceY + i][pieceX + xAdd].piece == nullptr && xAdd != 0)
+		if (currentSquare[pieceY + i][pieceX + xAdd].piece == nullptr && xAdd != 0)
 			return (false);
 		i += incr;
 	}
-	if (abs(pieceX) == 0 && lookForCheck)
+	if (abs(xAdd) == 0 && lookForCheck)
 		return (false);
 	return (true);
 }
 
-bool	isMovePossible(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck)
+bool	isMovePossible(Data &data, BoardSquare currentSquare[8][8], ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck)
 {
 	// If there is no range of a movement, the move is just not possible.
 	if (xAdd == 0 && yAdd == 0)
@@ -178,27 +190,27 @@ bool	isMovePossible(Data &data, ChessPiece *piece, int pieceX, int pieceY, int x
 	// The King has some special cases with castling.
 	switch (piece->getType()) {
 		case PAWN :
-			if (pawnMove(data, piece, pieceX, pieceY, xAdd, yAdd, lookForCheck))
+			if (pawnMove(data, currentSquare, piece, pieceX, pieceY, xAdd, yAdd, lookForCheck))
 				return (true);
 			break ;
 		case BISHOP :
-			if (bishopMove(data, pieceX, pieceY, xAdd, yAdd))
+			if (bishopMove(data, currentSquare, piece->getOwner(), pieceX, pieceY, xAdd, yAdd))
 				return (true);
 			break ;
 		case KNIGHT :
-			if (knightMove(data, xAdd, yAdd))
+			if (knightMove(data, currentSquare, piece->getOwner(), pieceX, pieceY, xAdd, yAdd))
 				return (true);
 			break;
 		case ROOK :
-			if (rookMove(data, pieceX, pieceY, xAdd, yAdd))
+			if (rookMove(data, currentSquare, pieceX, pieceY, xAdd, yAdd))
 				return (true);
 			break ;
 		case QUEEN :
-			if (bishopMove(data, pieceX, pieceY, xAdd, yAdd) || rookMove(data, pieceX, pieceY, xAdd, yAdd))
+			if (bishopMove(data, currentSquare, piece->getOwner(), pieceX, pieceY, xAdd, yAdd) || rookMove(data, currentSquare, pieceX, pieceY, xAdd, yAdd))
 				return (true);
 			break ;
 		case KING :
-			int ret = kingMove(data, piece, pieceX, pieceY, xAdd, yAdd);
+			int ret = kingMove(data, currentSquare, piece, pieceX, pieceY, xAdd, yAdd);
 			if (ret == KING_NORMAL)
 				return (true);
 			// if (ret == KING_SHORT_CASTLE)
@@ -249,7 +261,7 @@ bool	lookForCheck(Data &data, int player)
 				// Looks if any of those pieces could make a theoretical move to the position of the king.
 				// We need the piece that could give check and its position and also the x and y value it would need to make that move.
 				// Last bool should be true because we're looking for a check, not moving.
-				if (isMovePossible(data, data.square[y][x].piece, x, y, data.kingPosX[player] - x, data.kingPosY[player] - y, true))
+				if (isMovePossible(data, data.square, data.square[y][x].piece, x, y, data.kingPosX[player] - x, data.kingPosY[player] - y, true))
 					return (true);
 			}
 		}
@@ -317,7 +329,7 @@ void	placePiece(Data &data, int player)
 		// Checks if the move from the position of the grabbed piece to the position of the mouse cursor is possible.
 		// To do so it needs a pointer to the piece, the grabbed piece position and the x and y value that would need to be added to it to make that move.
 		// Last bool should only be true if we're looking for a check.
-		if (data.turn == player && isMovePossible(data, data.grabbedPiece, data.grabbedPiecePosX, data.grabbedPiecePosY, x - data.grabbedPiecePosX, y - data.grabbedPiecePosY, false))
+		if (data.turn == player && isMovePossible(data, data.square, data.grabbedPiece, data.grabbedPiecePosX, data.grabbedPiecePosY, x - data.grabbedPiecePosX, y - data.grabbedPiecePosY, false))
 		{
 			// If the move is theoretically possible, checks if the square our piece lands on does not have any piece of the same owner on it, or is empty.
 			if ((data.square[y][x].piece != nullptr && data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece->getOwner() != data.square[y][x].piece->getOwner()) || data.square[y][x].piece == nullptr)
