@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/06 15:29:03 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/06 16:50:34 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,9 @@ float	getBestDeepMove(Data &data, BoardSquare currentBoard[8][8], BoardSquare cu
 	int		savedX = -1;
 	int		savedY = -1;
 
+	static int i = 0;
+	i++;
+	std::cout << i << std::endl;
 	for (int y = 0; y < 8; ++y)
 	{
 		for (int x = 0; x < 8; ++x)
@@ -216,7 +219,7 @@ static float	calculateDeep(Data &data, BoardSquare currentBoard[8][8], int playe
 				worstOutcome = avgPoints;
 			}
 		}
-		std::cout << data.currentDepth << "  " << worstOutcome << "\n";
+		// std::cout << data.currentDepth << "  " << worstOutcome << "\n";
 		data.currentDepth++;
 	}
 	return (worstOutcome);
@@ -225,8 +228,8 @@ static float	calculateDeep(Data &data, BoardSquare currentBoard[8][8], int playe
 float	getBestMove(Data &data, BoardSquare currentBoard[8][8], BoardSquare currentSquare, int pieceX, int pieceY, int player, int &targetX, int &targetY)
 {
 	float	bestMove = -10000;
-	int		savedX = 6;
-	int		savedY = 6;
+	int		savedX = -1;
+	int		savedY = -1;
 
 	for (int y = 0; y < 8; ++y)
 	{
@@ -263,8 +266,11 @@ float	getBestMove(Data &data, BoardSquare currentBoard[8][8], BoardSquare curren
 			}
 		}
 	}
-	targetX = savedX;
-	targetY = savedY;
+	if (savedX != -1 && savedY != -1)
+	{
+		targetX = savedX;
+		targetY = savedY;
+	}
 	return (bestMove);
 }
 
