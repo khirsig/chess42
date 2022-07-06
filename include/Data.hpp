@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/06 09:51:38 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/06 11:53:53 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@
 # include "./BoardSquare.hpp"
 # include "History.hpp"
 
-# define SCREEN_WIDTH 600
-# define SCREEN_HEIGHT 600
+# define SCREEN_WIDTH 1200
+# define SCREEN_HEIGHT 1200
 
 # define CHECK 1
 # define MATE 2

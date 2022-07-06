@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/06 10:12:53 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/06 14:59:35 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,8 @@ bool	rookMove(Data &data, BoardSquare currentSquare[8][8], int owner, int pieceX
 	// The rook can only move on the straights. So if xAdd and yAdd are both != 0 returns false.
 	if (xAdd != 0 && yAdd != 0)
 		return (false);
-	if (currentSquare[pieceX + xAdd][pieceY + yAdd].piece && currentSquare[pieceX + xAdd][pieceY + yAdd].piece->getOwner() == owner)
-		return (false);
+	// if (currentSquare[pieceX + xAdd][pieceY + yAdd].piece && currentSquare[pieceX + xAdd][pieceY + yAdd].piece->getOwner() == owner)
+	// 	return (false);
 
 	// We set both the x increment value and the y increment value according if our xAdd and yAdd goal are positive or negative.
 	// This way we can iterate through the loop later in correct directions at the same time.
@@ -94,8 +94,8 @@ bool	knightMove(Data &data, BoardSquare currentSquare[8][8], int owner, int piec
 {
 	if (!((abs(xAdd) == 2 && abs(yAdd) == 1) || (abs(xAdd) == 1 && abs(yAdd) == 2)))
 		return (false);
-	if (currentSquare[pieceX + xAdd][pieceY + yAdd].piece && currentSquare[pieceX + xAdd][pieceY + yAdd].piece->getOwner() == owner)
-		return (false);
+	// if (currentSquare[pieceX + xAdd][pieceY + yAdd].piece && currentSquare[pieceX + xAdd][pieceY + yAdd].piece->getOwner() == owner)
+	// 	return (false);
 	return (true);
 }
 
@@ -106,8 +106,8 @@ bool	bishopMove(Data &data, BoardSquare currentSquare[8][8], int owner, int piec
 		return (false);
 	if (abs(xAdd) != abs(yAdd))
 		return (false);
-	if (currentSquare[pieceX + xAdd][pieceY + yAdd].piece && currentSquare[pieceX + xAdd][pieceY + yAdd].piece->getOwner() == owner)
-		return (false);
+	// if (currentSquare[pieceX + xAdd][pieceY + yAdd].piece && currentSquare[pieceX + xAdd][pieceY + yAdd].piece->getOwner() == owner)
+	// 	return (false);
 
 	// We set both the x increment value and the y increment value according if our xAdd and yAdd goal are positive or negative
 	// This way we can iterate through the loop later in correct directions at the same time.
@@ -145,8 +145,12 @@ bool	pawnMove(Data &data, BoardSquare currentSquare[8][8], ChessPiece *piece, in
 	// If lookForCheck is true, we only look for the diagonal movement.
 	if (abs(yAdd) > 2 || abs(xAdd) > 1)
 		return (false);
+	if (currentSquare[pieceY + yAdd][pieceX + xAdd].piece && abs(xAdd) != 1)
+		return (false);
 	if (piece->getOwner() == WHITE_P)
 	{
+		if (yAdd > 0)
+			return (false);
 		if (pieceY != 6 && abs(yAdd) > 1)
 			return (false);
 		if (yAdd == -1 && abs(xAdd) == 1 && currentSquare[pieceY + yAdd][pieceX + xAdd].piece && currentSquare[pieceY + yAdd][pieceX + xAdd].piece->getOwner() == BLACK_P)
@@ -154,6 +158,8 @@ bool	pawnMove(Data &data, BoardSquare currentSquare[8][8], ChessPiece *piece, in
 	}
 	else
 	{
+		if (yAdd < 0)
+			return (false);
 		if (pieceY != 1 && abs(yAdd) > 1)
 			return (false);
 		if (yAdd == 1 && abs(xAdd) == 1 && currentSquare[pieceY + yAdd][pieceX + xAdd].piece && currentSquare[pieceY + yAdd][pieceX + xAdd].piece->getOwner() == WHITE_P)
@@ -377,6 +383,10 @@ void	placePiece(Data &data, int player)
 					// The square from - to the move happened are saved for different color in board drawing.
 					data.lastMove[0] = &data.square[data.grabbedPiecePosY][data.grabbedPiecePosX];
 					data.lastMove[1] = &data.square[y][x];
+					int ownerMvdPiece = data.square[y][x].piece->getOwner();
+					// If the last square is reached for any pawn it gets automatically promoted to queen. WIP
+					if (data.square[y][x].piece->getType() == PAWN && ((y == 7 && ownerMvdPiece == BLACK_P) || (y == 0 && ownerMvdPiece == WHITE_P)))
+						data.square[y][x].piece->setType(QUEEN);
 					if (data.moveNbr < data.history.size() - 1)
 					{
 						int	elemToDelete = (int) data.history.size() - 1 - data.moveNbr;
@@ -648,6 +658,7 @@ int	main()
 		placePiece(data, WHITE_P);
 		if (data.turn == BLACK_P)
 			moveAI(data, data.square, BLACK_P);
+		// std::cout << calculateBoard(data, data.square, WHITE_P) << "\n";
 		moveThroughHistory(data);
 		// START DRAWING
 		ClearBackground(RAYWHITE);

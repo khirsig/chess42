@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:20:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/05 13:28:39 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/06 14:35:47 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ static const float pawnFieldValues[8][8] = {
 	{ 0.5, 0.5, 1.0, 2.5, 2.5, 1.0, 0.5, 0.5 },
 	{ 1.0, 1.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0 },
 	{ 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0 },
-	{ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }
+	{ 90.0, 90.0, 90.0, 90.0, 90.0, 90.0, 90.0, 90.0 }
 };
 
 struct Move {
@@ -82,7 +82,7 @@ struct Move {
 	float	evaluatedPoints;
 };
 
-float	calculateBoard(Data &data, int player);
+float	calculateBoard(Data &data, BoardSquare currentBoard[8][8], int player);
 
 
 #endif
