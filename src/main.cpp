@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/06 09:50:52 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/06 10:12:53 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,12 @@ int	kingMove(Data &data, BoardSquare currentSquare[8][8], ChessPiece *piece, int
 	return (KING_NORMAL);
 }
 
-bool	rookMove(Data &data, BoardSquare currentSquare[8][8], int pieceX, int pieceY, int xAdd, int yAdd)
+bool	rookMove(Data &data, BoardSquare currentSquare[8][8], int owner, int pieceX, int pieceY, int xAdd, int yAdd)
 {
 	// The rook can only move on the straights. So if xAdd and yAdd are both != 0 returns false.
 	if (xAdd != 0 && yAdd != 0)
+		return (false);
+	if (currentSquare[pieceX + xAdd][pieceY + yAdd].piece && currentSquare[pieceX + xAdd][pieceY + yAdd].piece->getOwner() == owner)
 		return (false);
 
 	// We set both the x increment value and the y increment value according if our xAdd and yAdd goal are positive or negative.
@@ -202,11 +204,11 @@ bool	isMovePossible(Data &data, BoardSquare currentSquare[8][8], ChessPiece *pie
 				return (true);
 			break;
 		case ROOK :
-			if (rookMove(data, currentSquare, pieceX, pieceY, xAdd, yAdd))
+			if (rookMove(data, currentSquare, piece->getOwner(), pieceX, pieceY, xAdd, yAdd))
 				return (true);
 			break ;
 		case QUEEN :
-			if (bishopMove(data, currentSquare, piece->getOwner(), pieceX, pieceY, xAdd, yAdd) || rookMove(data, currentSquare, pieceX, pieceY, xAdd, yAdd))
+			if (bishopMove(data, currentSquare, piece->getOwner(), pieceX, pieceY, xAdd, yAdd) || rookMove(data, currentSquare, piece->getOwner(), pieceX, pieceY, xAdd, yAdd))
 				return (true);
 			break ;
 		case KING :

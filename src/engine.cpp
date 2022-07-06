@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/06 09:53:07 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/06 10:10:31 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,15 +64,31 @@ float	calculateBoard(Data &data, BoardSquare currentBoard[8][8], int player)
 			if (currentBoard[y][x].piece)
 			{
 				int pieceOwner = currentBoard[y][x].piece->getOwner();
-				if (pieceOwner == player)
+				if (pieceOwner == WHITE_P)
 				{
-					boardValue += currentBoard[y][x].piece->getValue();
-					boardValue += getPieceSquareValue(currentBoard[y][x].piece, x, y);
+					if (pieceOwner == player)
+					{
+						boardValue += currentBoard[y][x].piece->getValue();
+						boardValue += getPieceSquareValue(currentBoard[y][x].piece, getOppositeSquare(x), getOppositeSquare(y));
+					}
+					else
+					{
+						boardValue -= currentBoard[y][x].piece->getValue();
+						boardValue -= getPieceSquareValue(currentBoard[y][x].piece, x, y);
+					}
 				}
 				else
 				{
-					boardValue -= currentBoard[y][x].piece->getValue();
-					boardValue -= getPieceSquareValue(currentBoard[y][x].piece, getOppositeSquare(x), getOppositeSquare(y));
+					if (pieceOwner == player)
+					{
+						boardValue += currentBoard[y][x].piece->getValue();
+						boardValue += getPieceSquareValue(currentBoard[y][x].piece, x, y);
+					}
+					else
+					{
+						boardValue -= currentBoard[y][x].piece->getValue();
+						boardValue -= getPieceSquareValue(currentBoard[y][x].piece, getOppositeSquare(x), getOppositeSquare(y));
+					}
 				}
 			}
 		}
@@ -133,8 +149,7 @@ static float checkEnemyMoves(Data &data, BoardSquare currentBoard[8][8], int cal
 				float evaluatedMove;
 				int targetX = -1, targetY = -1;
 
-				getBestDeepMove(data, currentBoard, currentBoard[y][x], x, y, player, targetX, targetY);
-				evaluatedMove = calculateBoard(data, currentBoard, calcPlayer);
+				evaluatedMove = getBestDeepMove(data, currentBoard, currentBoard[y][x], x, y, player, targetX, targetY);
 				if (bestMove.evaluatedPoints == -1 || bestMove.evaluatedPoints > evaluatedMove)
 				{
 					bestMove.startX = x;
@@ -171,15 +186,18 @@ static float	calculateDeep(Data &data, BoardSquare currentBoard[8][8], int playe
 		if ((player == BLACK_P && data.currentDepth % 2 == 0) || (player == WHITE_P && data.currentDepth % 2 == 1))
 		{
 			std::cout << "BLACK moves" << "\n";
-			avgPoints = checkEnemyMoves(data, copyBoard, player, BLACK_P, bestMove.startX, bestMove.startY, bestMove.targetX, bestMove.targetY);
+			checkEnemyMoves(data, copyBoard, player, BLACK_P, bestMove.startX, bestMove.startY, bestMove.targetX, bestMove.targetY);
 		}
 		else
 		{
 			std::cout << "WHITE moves" << "\n";
-			avgPoints = checkEnemyMoves(data, copyBoard, player, WHITE_P, bestMove.startX, bestMove.startY, bestMove.targetX, bestMove.targetY);
+			checkEnemyMoves(data, copyBoard, player, WHITE_P, bestMove.startX, bestMove.startY, bestMove.targetX, bestMove.targetY);
 		}
+		std::cout << bestMove.startX << " " << bestMove.startY << " --> " << bestMove.targetX << bestMove.targetY << "\n";
 		copyBoard[bestMove.targetY][bestMove.targetX].piece = copyBoard[bestMove.startY][bestMove.startX].piece;
 		copyBoard[bestMove.startY][bestMove.startX].piece = NULL;
+		avgPoints = calculateBoard(data, copyBoard, player);
+
 		if (worstOutcome > avgPoints)
 		{
 			std::cout << "Had to adjust" << "\n";
