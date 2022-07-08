@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/08 08:49:14 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/08 13:44:32 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,10 +49,14 @@ struct Data {
 	int									waitAI = 0;
 	int									currentDepth;
 	int									depth;
+	bool								checkmate = false;
 };
 
 bool	isMovePossible(Data &data, BoardSquare currentSquare[8][8], ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck);
 void	moveAI(Data &data, BoardSquare currentBoard[8][8], int player);
 void	toggleCheckBothPlayers(Data &data);
+bool	lookForCheckmate(Data &data);
+bool	possibleMoveCheck(Data &data, ChessPiece *piece, int pieceX, int pieceY, int targetX, int targetY);
+
 
 #endif

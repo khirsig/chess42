@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/08 09:11:17 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/08 13:58:08 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,6 +278,46 @@ bool	lookForCheck(Data &data, int player)
 	return (false);
 }
 
+bool	lookForCheckmate(Data &data)
+{
+	int	possibleMoves = 0;
+
+	if (data.kingCheck[WHITE_P] || data.kingCheck[BLACK_P])
+	{
+		int player;
+		if (data.kingCheck[WHITE_P])
+			player = WHITE_P;
+		else
+			player = BLACK_P;
+		for (int y = 0; y < 8; ++y)
+		{
+			for (int x = 0; x < 8; ++x)
+			{
+				for (int innerY = 0; innerY < 8; ++innerY)
+				{
+					for (int innerX = 0; innerX < 8; ++innerX)
+					{
+						if (data.square[y][x].piece && data.square[y][x].piece->getOwner() == player && isMovePossible(data, data.square, data.square[y][x].piece, x, y, innerX - x, innerY - y, false))
+						{
+							if (!possibleMoveCheck(data, data.square[y][x].piece, x, y, innerX, innerY))
+							{
+								std::cout << x << y << "  " << innerX << innerY << std::endl;
+								if ((data.square[innerY][innerX].piece && data.square[innerY][innerX].piece->getOwner() != player) || !data.square[innerY][innerX].piece)
+									possibleMoves++;
+							}
+						}
+					}
+				}
+			}
+		}
+		std::cout << possibleMoves << std::endl;
+	}
+	if (possibleMoves >= 0)
+		return (false);
+	else
+		return (true);
+}
+
 void	toggleCheckBothPlayers(Data &data)
 {
 		if (lookForCheck(data, WHITE_P))
@@ -337,7 +377,7 @@ void	placePiece(Data &data, int player)
 		// Checks if the move from the position of the grabbed piece to the position of the mouse cursor is possible.
 		// To do so it needs a pointer to the piece, the grabbed piece position and the x and y value that would need to be added to it to make that move.
 		// Last bool should only be true if we're looking for a check.
-		if (data.turn == player && isMovePossible(data, data.square, data.grabbedPiece, data.grabbedPiecePosX, data.grabbedPiecePosY, x - data.grabbedPiecePosX, y - data.grabbedPiecePosY, false))
+		if (!data.checkmate && data.turn == player && isMovePossible(data, data.square, data.grabbedPiece, data.grabbedPiecePosX, data.grabbedPiecePosY, x - data.grabbedPiecePosX, y - data.grabbedPiecePosY, false))
 		{
 			// If the move is theoretically possible, checks if the square our piece lands on does not have any piece of the same owner on it, or is empty.
 			if ((data.square[y][x].piece != nullptr && data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece->getOwner() != data.square[y][x].piece->getOwner()) || data.square[y][x].piece == nullptr)
@@ -416,6 +456,8 @@ void	placePiece(Data &data, int player)
 		data.grabbedPiecePosY = -1;
 		// After everything is over looks for checks on both players. If one king is in check sets the bool for board drawing.
 		toggleCheckBothPlayers(data);
+		if (lookForCheckmate(data))
+			data.checkmate = true;
 	}
 
 }
@@ -604,14 +646,42 @@ void	drawAllPieces(Data &data)
 	}
 }
 
+bool	possibleMoveCheck(Data &data, ChessPiece *piece, int pieceX, int pieceY, int targetX, int targetY)
+{
+	int pieceOwner = data.square[pieceY][pieceX].piece->getOwner();
+	bool isCheck = false;
+	ChessPiece *deletedPiece = NULL;
+	if (data.square[targetY][targetX].piece)
+		deletedPiece = data.square[targetY][targetX].piece;
+	data.square[targetY][targetX].piece = piece;
+	data.square[pieceY][pieceX].piece = NULL;
+	if (data.square[targetY][targetX].piece->getType() == KING)
+	{
+		data.kingPosX[pieceOwner] = targetX;
+		data.kingPosY[pieceOwner] = targetY;
+	}
+	if (lookForCheck(data, pieceOwner))
+		isCheck = true;
+	if (data.square[targetY][targetX].piece->getType() == KING)
+	{
+		data.kingPosX[pieceOwner] = pieceX;
+		data.kingPosY[pieceOwner] = pieceY;
+	}
+	data.square[pieceY][pieceX].piece = piece;
+	if (deletedPiece)
+		data.square[targetY][targetX].piece = deletedPiece;
+	else
+		data.square[targetY][targetX].piece = NULL;
+	return (isCheck);
+}
+
 void	drawPossibleMoves(Data &data, ChessPiece *piece, int pieceX, int pieceY, int size)
 {
 	for (int y = 0; y < 8; ++y)
 	{
 		for (int x = 0; x < 8; ++x)
 		{
-			std::cout << x - pieceX << "  " << y - pieceY << "\n";
-			if ((!data.square[y][x].piece || data.square[y][x].piece->getOwner() != piece->getOwner()) && isMovePossible(data, data.square, piece, pieceX, pieceY, x - pieceX, y - pieceY, false))
+			if ((!data.square[y][x].piece || data.square[y][x].piece->getOwner() != piece->getOwner()) && isMovePossible(data, data.square, piece, pieceX, pieceY, x - pieceX, y - pieceY, false) && !possibleMoveCheck(data, piece, pieceX, pieceY, x, y))
 			{
 				raylib::Color circCol;
 				if (y % 2 == 0)
@@ -697,6 +767,30 @@ void	drawBoard(Data &data)
 			}
 		}
 	}
+	int x = 0;
+	for (int y = 0; y < 8; ++y)
+	{
+		std::string squareNbrY = std::to_string(x + 1);
+		char c = y + '0' + 17;
+		std::string squareNbrX;
+		squareNbrX += c;
+		int	indent = size - size / 6;
+		if (x % 2 == 0)
+		{
+			// Bottom Numbers
+			DrawText(squareNbrX.c_str(), size * x + size / 20 + indent, size * 7 + size / 20 + indent, size / 10, data.primaryColor);
+			// Left Numbers
+			DrawText(squareNbrY.c_str(), size * 0 + size / 20, size * y + size / 20, size / 10, data.secondaryColor);
+		}
+		else
+		{
+			// Bottom Numbers
+			DrawText(squareNbrX.c_str(), size * x + size / 20 + indent, size * 7 + size / 20 + indent, size / 10, data.secondaryColor);
+			// Left Numbers
+			DrawText(squareNbrY.c_str(), size * 0 + size / 20, size * y + size / 20, size / 10, data.primaryColor);
+		}
+		++x;
+	}
 }
 
 int	main()
@@ -713,6 +807,8 @@ int	main()
 		// ACTIONS
 		grabPiece(data);
 		placePiece(data, WHITE_P);
+		// if (data.turn == WHITE_P)
+		// 	moveAI(data, data.square, WHITE_P);
 		if (data.turn == BLACK_P)
 			moveAI(data, data.square, BLACK_P);
 		// std::cout << calculateBoard(data, data.square, WHITE_P) << "\n";

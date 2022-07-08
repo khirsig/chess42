@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/08 08:50:22 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/08 14:11:08 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,10 @@ static float	getPieceSquareValue(ChessPiece *piece, int x, int y)
 	return (0);
 }
 
-float	calculateBoard(Data &data, BoardSquare currentBoard[8][8], int player)
+float	calculateBoard(Data &data, BoardSquare currentBoard[8][8], int player, float factor)
 {
-	float boardValue = 0.0f;
+	float playerValue = 0.0f;
+	float opponentValue = 0.0f;
 
 	for (int y = 0; y < 8; ++y)
 	{
@@ -68,31 +69,32 @@ float	calculateBoard(Data &data, BoardSquare currentBoard[8][8], int player)
 				{
 					if (pieceOwner == player)
 					{
-						boardValue += currentBoard[y][x].piece->getValue();
-						boardValue += getPieceSquareValue(currentBoard[y][x].piece, getOppositeSquare(x), getOppositeSquare(y));
+						playerValue += currentBoard[y][x].piece->getValue();
+						playerValue += getPieceSquareValue(currentBoard[y][x].piece, getOppositeSquare(x), getOppositeSquare(y));
 					}
 					else
 					{
-						boardValue -= currentBoard[y][x].piece->getValue();
-						boardValue -= getPieceSquareValue(currentBoard[y][x].piece, x, y);
+						opponentValue += currentBoard[y][x].piece->getValue();
+						opponentValue += getPieceSquareValue(currentBoard[y][x].piece, x, y);
 					}
 				}
 				else
 				{
 					if (pieceOwner == player)
 					{
-						boardValue += currentBoard[y][x].piece->getValue();
-						boardValue += getPieceSquareValue(currentBoard[y][x].piece, x, y);
+						playerValue += currentBoard[y][x].piece->getValue();
+						playerValue += getPieceSquareValue(currentBoard[y][x].piece, x, y);
 					}
 					else
 					{
-						boardValue -= currentBoard[y][x].piece->getValue();
-						boardValue -= getPieceSquareValue(currentBoard[y][x].piece, getOppositeSquare(x), getOppositeSquare(y));
+						opponentValue += currentBoard[y][x].piece->getValue();
+						opponentValue += getPieceSquareValue(currentBoard[y][x].piece, getOppositeSquare(x), getOppositeSquare(y));
 					}
 				}
 			}
 		}
 	}
+	float boardValue = playerValue / opponentValue * factor;
 	return (boardValue);
 }
 
@@ -102,9 +104,6 @@ float	getBestDeepMove(Data &data, BoardSquare currentBoard[8][8], BoardSquare cu
 	int		savedX = -1;
 	int		savedY = -1;
 
-	static int i = 0;
-	i++;
-	std::cout << i << std::endl;
 	for (int y = 0; y < 8; ++y)
 	{
 		for (int x = 0; x < 8; ++x)
@@ -116,7 +115,7 @@ float	getBestDeepMove(Data &data, BoardSquare currentBoard[8][8], BoardSquare cu
 					deletedPiece = currentBoard[y][x].piece;
 				currentBoard[y][x].piece = currentBoard[pieceY][pieceX].piece;
 				currentBoard[pieceY][pieceX].piece = NULL;
-				float currentMove = calculateBoard(data, currentBoard, player);
+				float currentMove = calculateBoard(data, currentBoard, player, 100);
 				if (bestMove == -1 || bestMove < currentMove)
 				{
 					// std::cout << "Best Move: " << pieceX << pieceY << " --> " << x << y << " = " << currentMove << " > " << bestMove << "\n";
@@ -211,7 +210,17 @@ static float	calculateDeep(Data &data, BoardSquare currentBoard[8][8], int playe
 		{
 			copyBoard[bestMove.targetY][bestMove.targetX].piece = copyBoard[bestMove.startY][bestMove.startX].piece;
 			copyBoard[bestMove.startY][bestMove.startX].piece = NULL;
-			avgPoints = calculateBoard(data, copyBoard, player);
+			avgPoints = calculateBoard(data, copyBoard, player, 100);
+			if ((player == BLACK_P && data.currentDepth % 2 == 1) || (player == WHITE_P && data.currentDepth % 2 == 0))
+			{
+				int rnd = GetRandomValue(90, 100);
+				avgPoints /= 100 * rnd;
+			}
+			// else
+			// {
+			// 	int rnd = GetRandomValue(95, 100);
+			// 	avgPoints /= 100 * rnd;
+			// }
 
 			if (worstOutcome > avgPoints)
 			{
@@ -235,14 +244,14 @@ float	getBestMove(Data &data, BoardSquare currentBoard[8][8], BoardSquare curren
 	{
 		for (int x = 0; x < 8; ++x)
 		{
-			if (isMovePossible(data, currentBoard, currentSquare.piece, pieceX, pieceY, x - pieceX, y - pieceY, false))
+			if ((!currentBoard[y][x].piece || currentBoard[y][x].piece->getOwner() != player) && isMovePossible(data, currentBoard, currentSquare.piece, pieceX, pieceY, x - pieceX, y - pieceY, false) && !possibleMoveCheck(data, currentBoard[pieceY][pieceX].piece, pieceX, pieceY, x, y))
 			{
 				ChessPiece *deletedPiece;
 				if (currentBoard[pieceY][pieceX].piece)
 					deletedPiece = currentBoard[y][x].piece;
 				currentBoard[y][x].piece = currentBoard[pieceY][pieceX].piece;
 				currentBoard[pieceY][pieceX].piece = NULL;
-				float currentMove = calculateBoard(data, currentBoard, player);
+				float currentMove = calculateBoard(data, currentBoard, player, 100);
 				float avgPoints = currentMove;
 
 				if (data.currentDepth < data.depth)
@@ -276,9 +285,14 @@ float	getBestMove(Data &data, BoardSquare currentBoard[8][8], BoardSquare curren
 
 void	moveAI(Data &data, BoardSquare currentBoard[8][8], int player)
 {
-	if (data.waitAI >= 80)
+	if (data.waitAI >= 180 && !data.checkmate)
 	{
-		if (data.turn == BLACK_P)
+		if (lookForCheckmate(data))
+		{
+			data.checkmate = true;
+			return ;
+		}
+		if (data.turn == player)
 		{
 			Move bestMove;
 			bestMove.evaluatedPoints = -10000;
@@ -289,7 +303,7 @@ void	moveAI(Data &data, BoardSquare currentBoard[8][8], int player)
 			{
 				for (int x = 0; x < 8; ++x)
 				{
-					if (data.square[y][x].piece && data.square[y][x].piece->getOwner() == BLACK_P)
+					if (data.square[y][x].piece && data.square[y][x].piece->getOwner() == player)
 					{
 						float evaluatedMove;
 						int targetX = -1, targetY = -1;
@@ -319,7 +333,7 @@ void	moveAI(Data &data, BoardSquare currentBoard[8][8], int player)
 			}
 
 			int pieceOwner = data.square[bestMove.targetY][bestMove.targetX].piece->getOwner();
-			if (data.square[bestMove.targetY][bestMove.targetX].piece->getType() == PAWN && bestMove.targetY == 7 && pieceOwner == BLACK_P)
+			if (data.square[bestMove.targetY][bestMove.targetX].piece->getType() == PAWN && ((bestMove.targetY == 7 && pieceOwner == BLACK_P) || (bestMove.targetY == 0 && pieceOwner == WHITE_P)))
 				data.square[bestMove.targetY][bestMove.targetX].piece->setType(QUEEN);
 			if (data.square[bestMove.targetY][bestMove.targetX].piece->getType() == KING)
 			{
@@ -340,7 +354,11 @@ void	moveAI(Data &data, BoardSquare currentBoard[8][8], int player)
 			data.lastMove[0] = &data.square[bestMove.startY][bestMove.startX];
 			data.lastMove[1] = &data.square[bestMove.targetY][bestMove.targetX];
 			toggleCheckBothPlayers(data);
-			data.turn = WHITE_P;
+			lookForCheckmate(data);
+			if (player == BLACK_P)
+				data.turn = WHITE_P;
+			else
+				data.turn = BLACK_P;
 			data.waitAI = 0;
 		}
 	}
