@@ -6,7 +6,7 @@
 #    By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/10 09:02:38 by tjensen           #+#    #+#              #
-#    Updated: 2022/07/05 12:08:03 by khirsig          ###   ########.fr        #
+#    Updated: 2022/07/08 16:55:39 by khirsig          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,7 @@
 NAME			:= chess42
 
 CC				:= c++
-CFLAGS			:= -std=c++0x -g
+CFLAGS			:= -std=c++0x -g -fsanitize=address
 
 SRCS			:=	main.cpp									\
 					engine.cpp									\

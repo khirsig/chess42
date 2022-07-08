@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/08 14:11:08 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/08 17:07:49 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,141 +98,128 @@ float	calculateBoard(Data &data, BoardSquare currentBoard[8][8], int player, flo
 	return (boardValue);
 }
 
-float	getBestDeepMove(Data &data, BoardSquare currentBoard[8][8], BoardSquare currentSquare, int pieceX, int pieceY, int player, int &targetX, int &targetY)
+void	depthCalculation(Data &data, BoardSquare currentBoard[8][8], int movingPlayer, int calcPlayer, float &moveValue, int currentDepth, int totalDepth)
 {
-	float	bestMove = -10000;
-	int		savedX = -1;
-	int		savedY = -1;
-
-	for (int y = 0; y < 8; ++y)
+	for (int pieceY = 0; pieceY < 8; ++pieceY)
 	{
-		for (int x = 0; x < 8; ++x)
+		for (int pieceX = 0; pieceX < 8; ++pieceX)
 		{
-			if (isMovePossible(data, currentBoard, currentSquare.piece, pieceX, pieceY, x - pieceX, y - pieceY, false))
+			if (currentBoard[pieceY][pieceX].piece && currentBoard[pieceY][pieceX].piece->getOwner() == movingPlayer)
 			{
-				ChessPiece *deletedPiece;
-				if (currentBoard[pieceY][pieceX].piece)
-					deletedPiece = currentBoard[y][x].piece;
-				currentBoard[y][x].piece = currentBoard[pieceY][pieceX].piece;
-				currentBoard[pieceY][pieceX].piece = NULL;
-				float currentMove = calculateBoard(data, currentBoard, player, 100);
-				if (bestMove == -1 || bestMove < currentMove)
+				for (int targetY = 0; targetY < 8; ++targetY)
 				{
-					// std::cout << "Best Move: " << pieceX << pieceY << " --> " << x << y << " = " << currentMove << " > " << bestMove << "\n";
-					savedX = x;
-					savedY = y;
-					bestMove = currentMove;
-				}
-				currentBoard[pieceY][pieceX].piece = currentBoard[y][x].piece;
-				if (deletedPiece)
-					currentBoard[y][x].piece = deletedPiece;
-				else
-					currentBoard[y][x].piece = NULL;
-			}
-		}
-	}
-	targetX = savedX;
-	targetY = savedY;
-	return (bestMove);
-}
+					for (int targetX = 0; targetX < 8; ++targetX)
+					{
+								std::cout << currentDepth << " " << pieceX << pieceY << " " << targetX << targetY << "\n";
+						if ((!currentBoard[targetY][targetX].piece || (currentBoard[targetY][targetX].piece && currentBoard[targetY][targetX].piece->getOwner() != movingPlayer))
+							&& isMovePossible(data, currentBoard, currentBoard[pieceY][pieceX].piece, pieceX, pieceY, targetX - pieceX, targetY - pieceY, false))
+							// && !possibleMoveCheck(data, currentBoard[pieceY][pieceX].piece, pieceX, pieceY, targetX, targetY))
+						{
+							BoardSquare	copyBoard[8][8];
+							for (int y = 0; y < 8; ++y)
+								for (int x = 0; x < 8; ++x)
+									copyBoard[y][x].piece = currentBoard[y][x].piece;
 
-static float checkEnemyMoves(Data &data, BoardSquare currentBoard[8][8], int calcPlayer, int player, int &startX, int &startY, int &newtargetX, int &newtargetY)
-{
-	Move bestMove;
-	bestMove.evaluatedPoints = -10000;
-	float	avgPoints = 0;
-	int		moveAmt = 0;
-
-	bestMove.startX = -1;
-	bestMove.startY = -1;
-	bestMove.targetX = -1;
-	bestMove.targetY = -1;
-	for (int y = 0; y < 8; ++y)
-	{
-		for (int x = 0; x < 8; ++x)
-		{
-			if (currentBoard[y][x].piece && currentBoard[y][x].piece->getOwner() == player)
-			{
-				float evaluatedMove;
-				int targetX = -1, targetY = -1;
-
-				evaluatedMove = getBestDeepMove(data, currentBoard, currentBoard[y][x], x, y, player, targetX, targetY);
-				if (evaluatedMove != -10000 && bestMove.evaluatedPoints < evaluatedMove)
-				{
-					bestMove.startX = x;
-					bestMove.startY = y;
-					bestMove.targetX = targetX;
-					bestMove.targetY = targetY;
-					bestMove.evaluatedPoints = evaluatedMove;
+							if (currentDepth < totalDepth)
+							{
+								if ((calcPlayer == BLACK_P && data.currentDepth % 2 == 0) || (calcPlayer == WHITE_P && data.currentDepth % 2 == 1))
+									movingPlayer = WHITE_P;
+								else
+									movingPlayer = BLACK_P;
+								copyBoard[targetY][targetX].piece = copyBoard[pieceY][pieceX].piece;
+								copyBoard[pieceY][pieceX].piece = NULL;
+								if (totalDepth == currentDepth + 1)
+								{
+									int currentValue = calculateBoard(data, copyBoard, calcPlayer, 100);
+									if (currentValue < moveValue)
+										moveValue = currentValue;
+								}
+								currentDepth++;
+								depthCalculation(data, copyBoard, movingPlayer, calcPlayer, moveValue, currentDepth, totalDepth);
+							}
+							// currentDepth = 1;
+						}
+					}
 				}
 			}
 		}
 	}
-	startX = bestMove.startX;
-	startY = bestMove.startY;
-	newtargetX = bestMove.targetX;
-	newtargetY = bestMove.targetY;
-	return (bestMove.evaluatedPoints);
 }
 
-static float	calculateDeep(Data &data, BoardSquare currentBoard[8][8], int player, float currentMove)
-{
-	float avgPoints = 0;
-	float worstOutcome = currentMove;
-	Move	bestMove;
-	BoardSquare	copyBoard[8][8];
+// static float checkEnemyMoves(Data &data, BoardSquare currentBoard[8][8], int calcPlayer)
+// {
+// 	Move bestMove;
+// 	bestMove.evaluatedPoints = -10000;
+// 	float	avgPoints = 0;
+// 	int		moveAmt = 0;
+// 	int		player;
 
-	bestMove.startX = -1;
-	bestMove.startY = -1;
-	bestMove.targetX = -1;
-	bestMove.targetY = -1;
-	for (int y = 0; y < 8; ++y)
-	{
-		for (int x = 0; x < 8; ++x)
-		{
-			copyBoard[y][x].piece = currentBoard[y][x].piece;
-		}
-	}
-	while (data.currentDepth < data.depth)
-	{
-		if ((player == BLACK_P && data.currentDepth % 2 == 0) || (player == WHITE_P && data.currentDepth % 2 == 1))
-		{
-			// std::cout << "BLACK moves" << "\n";
-			checkEnemyMoves(data, copyBoard, player, BLACK_P, bestMove.startX, bestMove.startY, bestMove.targetX, bestMove.targetY);
-		}
-		else
-		{
-			// std::cout << "WHITE moves" << "\n";
-			checkEnemyMoves(data, copyBoard, player, WHITE_P, bestMove.startX, bestMove.startY, bestMove.targetX, bestMove.targetY);
-		}
-		// std::cout << bestMove.startX << " " << bestMove.startY << " --> " << bestMove.targetX << " " << bestMove.targetY << "\n";
-		if (bestMove.startX != -1 && bestMove.startY != -1 && bestMove.targetX != -1 && bestMove.targetY != -1)
-		{
-			copyBoard[bestMove.targetY][bestMove.targetX].piece = copyBoard[bestMove.startY][bestMove.startX].piece;
-			copyBoard[bestMove.startY][bestMove.startX].piece = NULL;
-			avgPoints = calculateBoard(data, copyBoard, player, 100);
-			if ((player == BLACK_P && data.currentDepth % 2 == 1) || (player == WHITE_P && data.currentDepth % 2 == 0))
-			{
-				int rnd = GetRandomValue(90, 100);
-				avgPoints /= 100 * rnd;
-			}
-			// else
-			// {
-			// 	int rnd = GetRandomValue(95, 100);
-			// 	avgPoints /= 100 * rnd;
-			// }
+// 	// bestMove.startX = -1;
+// 	// bestMove.startY = -1;
+// 	// bestMove.targetX = -1;
+// 	// bestMove.targetY = -1;
+// 	for (int y = 0; y < 8; ++y)
+// 	{
+// 		for (int x = 0; x < 8; ++x)
+// 		{
+// 			while (data.currentDepth < data.depth)
+// 			{
+// 				BoardSquare	copyBoard[8][8];
+// 				for (int y = 0; y < 8; ++y)
+// 				{
+// 					for (int x = 0; x < 8; ++x)
+// 					{
+// 						copyBoard[y][x].piece = currentBoard[y][x].piece;
+// 					}
+// 				}
+// 				if ((player == BLACK_P && data.currentDepth % 2 == 0) || (player == WHITE_P && data.currentDepth % 2 == 1))
+// 					player = WHITE_P;
+// 				else
+// 					player = BLACK_P;
+// 				if (currentBoard[y][x].piece && currentBoard[y][x].piece->getOwner() == player)
+// 				{
+// 					float evaluatedMove;
+// 					int targetX = -1, targetY = -1;
 
-			if (worstOutcome > avgPoints)
-			{
-				// std::cout << "Had to adjust" << "\n";
-				worstOutcome = avgPoints;
-			}
-		}
-		// std::cout << data.currentDepth << "  " << worstOutcome << "\n";
-		data.currentDepth++;
-	}
-	return (worstOutcome);
-}
+// 					getBestDeepMove(data, currentBoard, currentBoard[y][x], x, y, player, targetX, targetY);
+
+// 					// ChessPiece *deletedPiece = NULL;
+// 					// if (copyBoard[bestMove.targetY][bestMove.targetX].piece)
+// 					// 	deletedPiece = copyBoard[bestMove.targetY][bestMove.targetX].piece;
+// 					copyBoard[bestMove.targetY][bestMove.targetX].piece = copyBoard[bestMove.startY][bestMove.startX].piece;
+// 					copyBoard[bestMove.startY][bestMove.startX].piece = NULL;
+
+// 					evaluatedMove = calculateBoard(data, currentBoard, player, 100);
+// 					if (evaluatedMove != -10000 && bestMove.evaluatedPoints > evaluatedMove)
+// 					{
+// 						// bestMove.startX = x;
+// 						// bestMove.startY = y;
+// 						// bestMove.targetX = targetX;
+// 						// bestMove.targetY = targetY;
+// 						bestMove.evaluatedPoints = evaluatedMove;
+// 					}
+// 				}
+// 				data.currentDepth++;
+// 			}
+// 		}
+// 	}
+// 	// startX = bestMove.startX;
+// 	// startY = bestMove.startY;
+// 	// newtargetX = bestMove.targetX;
+// 	// newtargetY = bestMove.targetY;
+// 	std::cout << "Hier" << std::endl;
+// 	return (bestMove.evaluatedPoints);
+// }
+
+// static float	calculateDeep(Data &data, BoardSquare currentBoard[8][8], int player, float currentMove)
+// {
+// 	// float avgPoints = 0;
+// 	float worstOutcome = currentMove;
+
+// 	if (worstOutcome != -10000)
+// 		worstOutcome = checkEnemyMoves(data, currentBoard, player);
+// 	return (worstOutcome);
+// }
 
 float	getBestMove(Data &data, BoardSquare currentBoard[8][8], BoardSquare currentSquare, int pieceX, int pieceY, int player, int &targetX, int &targetY)
 {
@@ -240,6 +227,11 @@ float	getBestMove(Data &data, BoardSquare currentBoard[8][8], BoardSquare curren
 	int		savedX = -1;
 	int		savedY = -1;
 
+	int otherPlayer;
+	if (player == BLACK_P)
+		otherPlayer = WHITE_P;
+	else
+		otherPlayer = BLACK_P;
 	for (int y = 0; y < 8; ++y)
 	{
 		for (int x = 0; x < 8; ++x)
@@ -252,15 +244,9 @@ float	getBestMove(Data &data, BoardSquare currentBoard[8][8], BoardSquare curren
 				currentBoard[y][x].piece = currentBoard[pieceY][pieceX].piece;
 				currentBoard[pieceY][pieceX].piece = NULL;
 				float currentMove = calculateBoard(data, currentBoard, player, 100);
-				float avgPoints = currentMove;
 
-				if (data.currentDepth < data.depth)
-				{
-					avgPoints = calculateDeep(data, currentBoard, player, currentMove);
-					data.currentDepth = 1;
-				}
-				if (avgPoints < currentMove)
-					currentMove = avgPoints;
+				depthCalculation(data, currentBoard, player, otherPlayer, currentMove, data.currentDepth, DEPTH);
+
 				if (bestMove == -10000 || bestMove < currentMove)
 				{
 					savedX = x;
@@ -298,7 +284,7 @@ void	moveAI(Data &data, BoardSquare currentBoard[8][8], int player)
 			bestMove.evaluatedPoints = -10000;
 
 			data.currentDepth = 1;
-			data.depth = 5;
+			data.depth = 3;
 			for (int y = 0; y < 8; ++y)
 			{
 				for (int x = 0; x < 8; ++x)
