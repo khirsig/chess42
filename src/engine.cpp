@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/06 16:50:34 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/08 08:50:22 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -306,7 +306,6 @@ void	moveAI(Data &data, BoardSquare currentBoard[8][8], int player)
 					}
 				}
 			}
-			std::cout << bestMove.startX << "  " << bestMove.startY << " --> " << bestMove.targetX << "  " << bestMove.targetY << std::endl;
 			ChessPiece *deletedPiece = NULL;
 			if (data.square[bestMove.targetY][bestMove.targetX].piece)
 				deletedPiece = data.square[bestMove.targetY][bestMove.targetX].piece;
@@ -318,6 +317,16 @@ void	moveAI(Data &data, BoardSquare currentBoard[8][8], int player)
 				for (int i = 0; i < elemToDelete; ++i)
 					data.history.pop_back();
 			}
+
+			int pieceOwner = data.square[bestMove.targetY][bestMove.targetX].piece->getOwner();
+			if (data.square[bestMove.targetY][bestMove.targetX].piece->getType() == PAWN && bestMove.targetY == 7 && pieceOwner == BLACK_P)
+				data.square[bestMove.targetY][bestMove.targetX].piece->setType(QUEEN);
+			if (data.square[bestMove.targetY][bestMove.targetX].piece->getType() == KING)
+			{
+				data.kingPosX[pieceOwner] = bestMove.targetX;
+				data.kingPosY[pieceOwner] = bestMove.targetY;
+			}
+
 			History	history;
 			history.movedPiece = data.grabbedPiece;
 			if (deletedPiece != nullptr)
@@ -330,6 +339,7 @@ void	moveAI(Data &data, BoardSquare currentBoard[8][8], int player)
 			data.moveNbr++;
 			data.lastMove[0] = &data.square[bestMove.startY][bestMove.startX];
 			data.lastMove[1] = &data.square[bestMove.targetY][bestMove.targetX];
+			toggleCheckBothPlayers(data);
 			data.turn = WHITE_P;
 			data.waitAI = 0;
 		}

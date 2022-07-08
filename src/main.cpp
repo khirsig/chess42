@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/06 14:59:35 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/08 09:11:17 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -600,7 +600,51 @@ void	drawAllPieces(Data &data)
 		pos.x = GetMouseX() - size / 2;
 		pos.y = GetMouseY() - size / 2;
 		scale = (float)size / 1280;
-		drawPiece(data, pieceType, pieceOwner, pos, scale);
+		drawPiece(data, pieceType, pieceOwner, pos, scale * 1.10);
+	}
+}
+
+void	drawPossibleMoves(Data &data, ChessPiece *piece, int pieceX, int pieceY, int size)
+{
+	for (int y = 0; y < 8; ++y)
+	{
+		for (int x = 0; x < 8; ++x)
+		{
+			std::cout << x - pieceX << "  " << y - pieceY << "\n";
+			if ((!data.square[y][x].piece || data.square[y][x].piece->getOwner() != piece->getOwner()) && isMovePossible(data, data.square, piece, pieceX, pieceY, x - pieceX, y - pieceY, false))
+			{
+				raylib::Color circCol;
+				if (y % 2 == 0)
+				{
+					if (x % 2 == 0)
+						circCol = data.secondaryColor;
+					else
+						circCol = data.primaryColor;
+				}
+				else
+				{
+					if (x % 2 == 0)
+						circCol = data.primaryColor;
+					else
+						circCol = data.secondaryColor;
+				}
+				if (!data.square[y][x].piece)
+					DrawCircle(size * x + size / 2, size * y + size / 2, size / 6, circCol);
+				else
+				{
+					DrawCircle(size * x + size / 2, size * y + size / 2, size / 2.2, circCol);
+					if (data.lastMove[0] == &data.square[y][x] || data.lastMove[1] == &data.square[y][x])
+					{
+						raylib::Color lastMoveCol(GRAY);
+						DrawCircle(size * x + size / 2, size * y + size / 2, size / 2.7, lastMoveCol);
+					}
+					else if (circCol == data.primaryColor)
+						DrawCircle(size * x + size / 2, size * y + size / 2, size / 2.7, data.secondaryColor);
+					else if (circCol == data.secondaryColor)
+						DrawCircle(size * x + size / 2, size * y + size / 2, size / 2.7, data.primaryColor);
+				}
+			}
+		}
 	}
 }
 
@@ -637,6 +681,19 @@ void	drawBoard(Data &data)
 				raylib::Color lastMoveCol(GRAY);
 				lastMoveCol.a = 200;
 				DrawRectangle(size * x, size * y, size, size, lastMoveCol);
+			}
+		}
+	}
+	for (int y = 0; y < 8; ++y)
+	{
+		for (int x = 0; x < 8; ++x)
+		{
+			if (data.grabbedPiece && data.grabbedPiecePosX == x && data.grabbedPiecePosY == y)
+			{
+				raylib::Color grabbedPieceCol(YELLOW);
+				grabbedPieceCol.a = 150;
+				DrawRectangle(size * x, size * y, size, size, grabbedPieceCol);
+				drawPossibleMoves(data, data.square[y][x].piece, x, y, size);
 			}
 		}
 	}
