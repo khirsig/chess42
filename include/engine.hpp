@@ -6,14 +6,14 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:20:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/11 13:05:15 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/18 11:12:31 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ENGINE_HPP
 # define ENGINE_HPP
 
-# define DEPTH 4
+# define DEPTH 5
 
 static const float kingFieldValues[8][8] = {
 	{ 2.0, 3.0, 1.0, 0.0, 0.0, 1.0, 3.0, 2.0 },

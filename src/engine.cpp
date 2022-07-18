@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/11 13:03:35 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/18 11:05:41 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,9 +98,14 @@ float	calculateBoard(Data &data, BoardSquare currentBoard[8][8], int player, flo
 	return (boardValue);
 }
 
-void	depthCalculation(Data &data, BoardSquare currentBoard[8][8], int movingPlayer, int calcPlayer, float &moveValue, int currentDepth, int totalDepth)
+float	depthCalculation(Data &data, BoardSquare currentBoard[8][8], int movingPlayer, int calcPlayer, float &moveValue, int currentDepth, int totalDepth)
 {
-	static int ii = 0;
+	float value;
+
+	if (movingPlayer == calcPlayer)
+		value = -10000;
+	else
+		value = 10000;
 
 	for (int pieceY = 0; pieceY < 8; ++pieceY)
 	{
@@ -124,34 +129,26 @@ void	depthCalculation(Data &data, BoardSquare currentBoard[8][8], int movingPlay
 
 							if (currentDepth < totalDepth)
 							{
-								ii++;
-								// if ((calcPlayer == BLACK_P && data.currentDepth % 2 == 0) || (calcPlayer == WHITE_P && data.currentDepth % 2 == 1))
-								// 	movingPlayer = WHITE_P;
-								// else
-								// 	movingPlayer = BLACK_P;
 								copyBoard[targetY][targetX].piece = copyBoard[pieceY][pieceX].piece;
 								copyBoard[pieceY][pieceX].piece = NULL;
 								if (totalDepth == currentDepth + 1)
 								{
-									float currentValue = calculateBoard(data, copyBoard, calcPlayer, 100);
-									if (currentValue < moveValue)
-									{
-										moveValue = currentValue;
-									}
+									value = calculateBoard(data, copyBoard, calcPlayer, 100);
+									return (value);
 								}
-								// currentDepth++;
-								depthCalculation(data, copyBoard, (movingPlayer  + 1) % 2, calcPlayer, moveValue, currentDepth + 1, totalDepth);
+								float ret = depthCalculation(data, copyBoard, (movingPlayer  + 1) % 2, calcPlayer, moveValue, currentDepth + 1, totalDepth);
+								if ((movingPlayer == calcPlayer && ret > value) || (movingPlayer != calcPlayer && ret < value))
+								{
+									value = ret;
+								}
 							}
-							// currentDepth = 1;
 						}
 					}
 				}
 			}
 		}
 	}
-									// std::cout << ii << "\n";
-	// if (currentDepth == 1)
-	// 	std::cout << movingPlayer << " " << currentDepth << "  " << ii << std::endl;
+	return (value);
 }
 
 float	getBestMove(Data &data, BoardSquare currentBoard[8][8], BoardSquare currentSquare, int pieceX, int pieceY, int player, int &targetX, int &targetY)
@@ -176,10 +173,10 @@ float	getBestMove(Data &data, BoardSquare currentBoard[8][8], BoardSquare curren
 					deletedPiece = currentBoard[y][x].piece;
 				currentBoard[y][x].piece = currentBoard[pieceY][pieceX].piece;
 				currentBoard[pieceY][pieceX].piece = NULL;
-				float currentMove = 10000;
+				float currentMove = -10000;
 
 				std::cout << (char)(pieceX + '0' + 17) << pieceY + 1 << " -> " << (char)(x + '0' + 17) << y + 1;
-				depthCalculation(data, currentBoard, otherPlayer, player, currentMove, data.currentDepth, DEPTH);
+				currentMove = depthCalculation(data, currentBoard, otherPlayer, player, currentMove, data.currentDepth, DEPTH);
 				std::cout << " = " << currentMove << "\n";
 
 
