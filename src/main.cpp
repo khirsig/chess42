@@ -6,12 +6,11 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/08 13:58:08 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/18 14:59:11 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Data.hpp"
-#include "../include/engine.hpp"
 
 int	kingMove(Data &data, BoardSquare currentSquare[8][8], ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd)
 {

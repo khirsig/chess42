@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:20:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/18 11:12:31 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/18 16:03:07 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 # define ENGINE_HPP
 
 # define DEPTH 5
+
+# include <algorithm>
+# include <thread>
 
 static const float kingFieldValues[8][8] = {
 	{ 2.0, 3.0, 1.0, 0.0, 0.0, 1.0, 3.0, 2.0 },
@@ -76,15 +79,40 @@ static const float pawnFieldValues[8][8] = {
 	{ 90.0, 90.0, 90.0, 90.0, 90.0, 90.0, 90.0, 90.0 }
 };
 
-struct Move {
-	int	startX;
-	int	startY;
-	int	targetX;
-	int	targetY;
-	float	evaluatedPoints;
-};
+class Move {
+	public:
+		Move(const Move &other)
+			: _startX(other._startX),
+			  _startY(other._startY),
+			  _targetX(other._targetX),
+			  _targetY(other._targetY),
+			  _evaluatedPoints(other._evaluatedPoints) { }
+		Move(int sX, int sY, int tX, int tY, float eP)
+			: _startX(sX),
+			  _startY(sY),
+			  _targetX(tX),
+			  _targetY(tY),
+			  _evaluatedPoints(eP) { }
 
-float	calculateBoard(Data &data, BoardSquare currentBoard[8][8], int player, float factor);
+
+		void	setEvalPoints(float newEval) { _evaluatedPoints = newEval; }
+
+		int		getStartX() const { return (_startX); }
+		int		getStartY() const { return (_startY); }
+		int		getTargetX() const { return (_targetX); }
+		int		getTargetY() const { return (_targetY); }
+		float	getEvalPoints() const { return (_evaluatedPoints); }
+
+		// friend bool	operator<(const Move &first, const Move &other);
+		// friend bool	operator>(const Move &first, const Move &other);
+
+	private:
+		int	_startX;
+		int	_startY;
+		int	_targetX;
+		int	_targetY;
+		float	_evaluatedPoints;
+};
 
 
 #endif
