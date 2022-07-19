@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:20:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/19 10:16:21 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/19 13:11:10 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,6 @@ class Move {
 			  _targetY(tY),
 			  _evaluatedPoints(eP) { }
 
-
 		void	setEvalPoints(float newEval) { _evaluatedPoints = newEval; }
 
 		int		getStartX() const { return (_startX); }
@@ -102,16 +101,12 @@ class Move {
 		int		getTargetX() const { return (_targetX); }
 		int		getTargetY() const { return (_targetY); }
 		float	getEvalPoints() const { return (_evaluatedPoints); }
-
-		// friend bool	operator<(const Move &first, const Move &other);
-		// friend bool	operator>(const Move &first, const Move &other);
-
 	private:
+		float	_evaluatedPoints;
 		int	_startX;
 		int	_startY;
 		int	_targetX;
 		int	_targetY;
-		float	_evaluatedPoints;
 };
 
 

@@ -1,23 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   BoardSquare.hpp                                    :+:      :+:    :+:   */
+/*   Board.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/04 19:32:27 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/19 11:59:00 by khirsig          ###   ########.fr       */
+/*   Created: 2022/07/19 11:58:22 by khirsig           #+#    #+#             */
+/*   Updated: 2022/07/19 12:00:33 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef BOARDSQUARE_HPP
-# define BOARDSQUARE_HPP
+#ifndef BOARD_HPP
+# define BOARD_HPP
 
-# include "./ChessPiece.hpp"
+# include "./BoardSquare.hpp"
 
-struct BoardSquare {
-	ChessPiece	*piece;
+struct Board {
+	BoardSquare	square[8][8];
+	int			kingPosX[2];
+	int			kingPosY[2];
+	bool		kingCheck[2] = { false, false };
+	bool		checkmate = false;
+	bool		stalemate = false;
 };
-
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/18 14:57:48 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/19 14:38:43 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include <cstdlib>
 # include <iostream>
 # include "../extern/raylib-cpp/include/raylib-cpp.hpp"
-# include "./BoardSquare.hpp"
+# include "./Board.hpp"
 # include "History.hpp"
 # include "./engine.hpp"
 
@@ -33,7 +33,7 @@
 # define KING_LONG_CASTLE 2
 
 struct Data {
-	BoardSquare							square[8][8];
+	Board								chessBoard;
 	raylib::Color						primaryColor = RAYWHITE;
 	raylib::Color						secondaryColor = BLUE;
 	std::vector<raylib::Texture2D>		tex;
@@ -43,24 +43,19 @@ struct Data {
 	int									grabbedPiecePosX;
 	int									grabbedPiecePosY;
 	bool								PlayerHasCastled[2];
-	int									kingPosX[2];
-	int									kingPosY[2];
-	bool								kingCheck[2] = { false, false };
 	BoardSquare							*lastMove[2] = { nullptr, nullptr };
 	int									turn = WHITE_P;
 	int									waitAI = 0;
 	int									currentDepth;
 	int									depth;
-	bool								checkmate = false;
-	int									savedMoves = 0;
 };
 
-bool	isMovePossible(Data &data, BoardSquare currentSquare[8][8], ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck);
-void	moveAI(Data &data, BoardSquare currentBoard[8][8], int player);
-void	toggleCheckBothPlayers(Data &data);
-bool	lookForCheckmate(Data &data);
-bool	possibleMoveCheck(Data &data, ChessPiece *piece, int pieceX, int pieceY, int targetX, int targetY);
-float	calculateBoard(Data &data, BoardSquare currentBoard[8][8], int player, float factor);
+bool	isMovePossible(Board &chessBoard, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck);
+void	moveAI(Data &data, Board &chessBoard, int player);
+void	toggleCheckBothPlayers(Board &chessBoard);
+bool	lookForCheckmate(Board &chessBoard);
+bool	possibleMoveCheck(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY);
+float	calculateBoard(Board &chessBoard, int player, float factor);
 
 
 #endif
