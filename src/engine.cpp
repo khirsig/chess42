@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/19 14:40:45 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/19 15:19:41 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,9 +194,9 @@ float	getBestMove(Board &chessBoard, int pieceX, int pieceY, int player, std::ve
 				chessBoard.square[y][x].piece = chessBoard.square[pieceY][pieceX].piece;
 				chessBoard.square[pieceY][pieceX].piece = NULL;
 
-				std::cout << (char)(pieceX + '0' + 17) << pieceY + 1 << " -> " << (char)(x + '0' + 17) << y + 1 << std::endl;
+				std::cout << (char)(pieceX + '0' + 17) << pieceY + 1 << " -> " << (char)(x + '0' + 17) << y + 1;
 				float currentMove = depthCalculation(chessBoard, otherPlayer, player, 1, DEPTH);
-				std::cout << " = " << currentMove;
+				std::cout << " = " << currentMove << std::endl;
 
 				allMoves.push_back(Move(pieceX, pieceY, x, y, currentMove));
 

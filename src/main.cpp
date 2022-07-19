@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/19 14:41:10 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/19 15:58:43 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -680,6 +680,8 @@ bool	possibleMoveCheck(Board &chessBoard, int pieceX, int pieceY, int targetX, i
 
 void	drawPossibleMoves(Data &data, ChessPiece *piece, int pieceX, int pieceY, int size)
 {
+	if (piece->getOwner() != data.turn)
+		return ;
 	for (int y = 0; y < 8; ++y)
 	{
 		for (int x = 0; x < 8; ++x)

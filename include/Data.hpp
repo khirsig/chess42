@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/19 14:38:43 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/19 15:36:42 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@
 struct Data {
 	Board								chessBoard;
 	raylib::Color						primaryColor = RAYWHITE;
-	raylib::Color						secondaryColor = BLUE;
+	raylib::Color						secondaryColor = DARKGREEN;
 	std::vector<raylib::Texture2D>		tex;
 	std::vector<History>				history;
 	int									moveNbr = -1;
