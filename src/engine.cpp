@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/18 16:11:48 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/19 10:22:55 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,18 +73,24 @@ float	calculateBoard(Data &data, BoardSquare currentBoard[8][8], int player, flo
 		{
 			if (currentBoard[y][x].piece)
 			{
-				int pieceOwner = currentBoard[y][x].piece->getOwner();
+				int		pieceOwner = currentBoard[y][x].piece->getOwner();
+				int		pieceType = currentBoard[y][x].piece->getType();
+				bool	pieceMoved = currentBoard[y][x].piece->getHasMoved();
 				if (player == WHITE_P)
 				{
 					if (pieceOwner == player)
 					{
 						playerValue += currentBoard[y][x].piece->getValue();
 						playerValue += getPieceSquareValue(currentBoard[y][x].piece, getOppositeSquare(x), getOppositeSquare(y));
+						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
+							playerValue -= 5.0f;
 					}
 					else
 					{
 						opponentValue += currentBoard[y][x].piece->getValue();
 						opponentValue += getPieceSquareValue(currentBoard[y][x].piece, x, y);
+						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
+							opponentValue -= 5.0f;
 					}
 				}
 				else
@@ -93,11 +99,15 @@ float	calculateBoard(Data &data, BoardSquare currentBoard[8][8], int player, flo
 					{
 						playerValue += currentBoard[y][x].piece->getValue();
 						playerValue += getPieceSquareValue(currentBoard[y][x].piece, x, y);
+						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
+							playerValue -= 5.0f;
 					}
 					else
 					{
 						opponentValue += currentBoard[y][x].piece->getValue();
 						opponentValue += getPieceSquareValue(currentBoard[y][x].piece, getOppositeSquare(x), getOppositeSquare(y));
+						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
+							opponentValue -= 5.0f;
 					}
 				}
 			}
@@ -232,43 +242,11 @@ void	moveAI(Data &data, BoardSquare currentBoard[8][8], int player)
 			// for (auto& th : threads)
 			// 	th.join();
 			std::sort(allMoves.begin(), allMoves.end());
-			// int oldAmount = data.savedMoves;
-			// std::cout << oldAmount << " -> ";
-			// data.savedMoves /= 3;
-			// for (;oldAmount > data.savedMoves; --oldAmount)
-			// 	allMoves.pop_back();
-			// // allMoves.resize(data.savedMoves);
-
-			// int otherPlayer;
-			// if (player == WHITE_P)
-			// 	otherPlayer = BLACK_P;
-			// else
-			// 	otherPlayer = WHITE_P;
-
-			// std::cout << data.savedMoves << "\n";
-			// for (int i = 0; i < data.savedMoves; ++i)
-			// {
-			// 	ChessPiece *deletedPiece;
-			// 	if (currentBoard[allMoves[i].getStartY()][allMoves[i].getStartX()].piece)
-			// 		deletedPiece = currentBoard[allMoves[i].getTargetY()][allMoves[i].getTargetX()].piece;
-			// 	currentBoard[allMoves[i].getTargetY()][allMoves[i].getTargetX()].piece = currentBoard[allMoves[i].getStartY()][allMoves[i].getStartX()].piece;
-			// 	currentBoard[allMoves[i].getStartY()][allMoves[i].getStartX()].piece = NULL;
-
-			// 	std::cout << (char)(allMoves[i].getStartX() + '0' + 17) << allMoves[i].getStartY() + 1 << " -> " << (char)(allMoves[i].getTargetX() + '0' + 17) << allMoves[i].getTargetY() + 1;
-			// 	allMoves[i].setEvalPoints(depthCalculation(data, currentBoard, otherPlayer, player, 1, 6));
-			// 	std::cout << " = " << allMoves[i].getEvalPoints() << "\n";
-
-			// 	currentBoard[allMoves[i].getStartY()][allMoves[i].getStartX()].piece = currentBoard[allMoves[i].getTargetY()][allMoves[i].getTargetX()].piece;
-			// 	if (deletedPiece)
-			// 		currentBoard[allMoves[i].getTargetY()][allMoves[i].getTargetX()].piece = deletedPiece;
-			// 	else
-			// 		currentBoard[allMoves[i].getTargetY()][allMoves[i].getTargetX()].piece = NULL;
-			// }
-			// std::sort(allMoves.begin(), allMoves.end());
 			Move bestMove(allMoves[0]);
 			allMoves.clear();
 			data.savedMoves = 0;
 
+			data.square[bestMove.getStartY()][bestMove.getStartX()].piece->setHasMoved(true);
 			ChessPiece *deletedPiece = NULL;
 			if (data.square[bestMove.getTargetY()][bestMove.getTargetX()].piece)
 				deletedPiece = data.square[bestMove.getTargetY()][bestMove.getTargetX()].piece;
