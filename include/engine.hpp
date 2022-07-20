@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:20:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/20 13:05:09 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/20 16:02:56 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,8 +98,7 @@ static int* mgFieldValues[6] =
 	queenFieldValues,
 	kingMGFieldValues
 };
-
-static const int* egFieldValues[6] =
+static int* egFieldValues[6] =
 {
 	pawnFieldValues,
 	bishopFieldValues,
@@ -108,6 +107,8 @@ static const int* egFieldValues[6] =
 	queenFieldValues,
 	kingEGFieldValues
 };
+
+static int endGameThreshold = 1350;
 
 class Move {
 	public:

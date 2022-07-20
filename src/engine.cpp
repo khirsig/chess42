@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/20 14:53:51 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/20 16:07:08 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,29 +43,19 @@ static float	getOppositeSquare(int i)
 	return (0);
 }
 
-static float	getPieceSquareValue(ChessPiece *piece, int x, int y)
+static float	getPieceSquareValue(ChessPiece *piece, int x, int y, bool endgame)
 {
-	// switch (piece->getType()) {
-	// 	case PAWN :
-	// 		return (pawnFieldValues[y][x]);
-	// 	case BISHOP :
-	// 		return (bishopFieldValues[y][x]);
-	// 	case KNIGHT :
-	// 		return (knightFieldValues[y][x]);
-	// 	case ROOK :
-	// 		return (rookFieldValues[y][x]);
-	// 	case QUEEN :
-	// 		return (queenFieldValues[y][x]);
-	// 	case KING :
-	// 		return (kingFieldValues[y][x]);
-	// }
+	if (endgame)
+		return (egFieldValues[piece->getType()][y * x]);
 	return (mgFieldValues[piece->getType()][y * x]);
 }
 
 float	calculateBoard(Board &chessBoard, int player, float factor)
 {
-	float playerValue = 0.0f;
-	float opponentValue = 0.0f;
+	float playerPieceValue = 0.0f;
+	float playerSquareValue = 0.0f;
+	float opponentPieceValue = 0.0f;
+	float opponentSquareValue = 0.0f;
 
 	for (int y = 0; y < 8; ++y)
 	{
@@ -80,36 +70,37 @@ float	calculateBoard(Board &chessBoard, int player, float factor)
 				{
 					if (pieceOwner == player)
 					{
-						playerValue += chessBoard.square[y][x].piece->getValue();
-						playerValue += getPieceSquareValue(chessBoard.square[y][x].piece, getOppositeSquare(x), getOppositeSquare(y));
+						playerPieceValue += chessBoard.square[y][x].piece->getValue();
+						playerSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, getOppositeSquare(x), getOppositeSquare(y), chessBoard.endgame);
 					}
 					else
 					{
-						opponentValue += chessBoard.square[y][x].piece->getValue();
-						opponentValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y);
+						opponentPieceValue += chessBoard.square[y][x].piece->getValue();
+						opponentSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y, chessBoard.endgame);
 					}
 				}
 				else
 				{
 					if (pieceOwner == player)
 					{
-						playerValue += chessBoard.square[y][x].piece->getValue();
-						playerValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y);
+						playerPieceValue += chessBoard.square[y][x].piece->getValue();
+						playerSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y, chessBoard.endgame);
 					}
 					else
 					{
-						opponentValue += chessBoard.square[y][x].piece->getValue();
-						opponentValue += getPieceSquareValue(chessBoard.square[y][x].piece, getOppositeSquare(x), getOppositeSquare(y));
+						opponentPieceValue += chessBoard.square[y][x].piece->getValue();
+						opponentSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, getOppositeSquare(x), getOppositeSquare(y), chessBoard.endgame);
 					}
 				}
 			}
 		}
 	}
-	float boardValue = playerValue / opponentValue;
-	// if (lookForCheckmate(chessBoard))
+	// if (chessBoard.endgame == false && playerPieceValue < endGameThreshold && opponentPieceValue < endGameThreshold)
 	// {
-	// 	boardValue += 10000;
+	// 	chessBoard.endgame = true;
+	// 	std::cout << "ENDGAME ACTIVATED\n";
 	// }
+	float boardValue = (playerPieceValue + playerSquareValue) / (opponentPieceValue + opponentSquareValue);
 	return (boardValue);
 }
 
