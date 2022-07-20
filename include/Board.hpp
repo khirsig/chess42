@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/19 11:58:22 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/19 12:00:33 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/20 09:05:32 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ struct Board {
 	bool		kingCheck[2] = { false, false };
 	bool		checkmate = false;
 	bool		stalemate = false;
+	int			iterations = 0;
 };
 
 #endif
