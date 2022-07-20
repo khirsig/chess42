@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/19 15:36:42 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/19 16:02:28 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define DATA_HPP
 
 # include <vector>
+# include <thread>
 # include <cstdlib>
 # include <iostream>
 # include "../extern/raylib-cpp/include/raylib-cpp.hpp"
@@ -48,6 +49,8 @@ struct Data {
 	int									waitAI = 0;
 	int									currentDepth;
 	int									depth;
+	std::thread							aiThread;
+	bool								aiThinking = false;
 };
 
 bool	isMovePossible(Board &chessBoard, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck);

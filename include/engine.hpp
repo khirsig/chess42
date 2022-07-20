@@ -6,14 +6,15 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:20:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/19 15:52:06 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/20 10:16:00 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ENGINE_HPP
 # define ENGINE_HPP
 
-# define DEPTH 5
+# define DEPTH_WHITE 5
+# define DEPTH_BLACK 5
 
 # include <algorithm>
 # include <thread>
@@ -76,7 +77,7 @@ static const float pawnFieldValues[8][8] = {
 	{ 0.5, 0.5, 1.0, 3.5, 3.5, 1.0, 0.5, 0.5 },
 	{ 1.0, 1.0, 2.0, 3.5, 3.5, 2.0, 1.0, 1.0 },
 	{ 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0 },
-	{ 90.0, 90.0, 90.0, 90.0, 90.0, 90.0, 90.0, 90.0 }
+	{ 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0 }
 };
 
 class Move {

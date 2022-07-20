@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/19 15:19:41 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/20 10:13:52 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ float	calculateBoard(Board &chessBoard, int player, float factor)
 	return (boardValue);
 }
 
-float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int currentDepth, int totalDepth)
+float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int currentDepth, int totalDepth, float alpha, float beta)
 {
 	float value;
 
@@ -154,13 +154,20 @@ float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int 
 									chessBoard.square[targetY][targetX].piece = deletedPiece;
 									return (value);
 								}
-								float ret = depthCalculation(chessBoard, (movingPlayer  + 1) % 2, calcPlayer, currentDepth + 1, totalDepth);
+								float ret = depthCalculation(chessBoard, (movingPlayer  + 1) % 2, calcPlayer, currentDepth + 1, totalDepth, alpha, beta);
+								chessBoard.iterations++;
 								chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][targetX].piece;
 								chessBoard.square[targetY][targetX].piece = deletedPiece;
 								if ((movingPlayer == calcPlayer && ret > value) || (movingPlayer != calcPlayer && ret < value))
 								{
 									value = ret;
+									if (movingPlayer == calcPlayer)
+										alpha = value;
+									else
+										beta = value;
 								}
+								if (beta <= alpha)
+									return (value) ;
 							}
 						}
 					}
@@ -194,9 +201,14 @@ float	getBestMove(Board &chessBoard, int pieceX, int pieceY, int player, std::ve
 				chessBoard.square[y][x].piece = chessBoard.square[pieceY][pieceX].piece;
 				chessBoard.square[pieceY][pieceX].piece = NULL;
 
-				std::cout << (char)(pieceX + '0' + 17) << pieceY + 1 << " -> " << (char)(x + '0' + 17) << y + 1;
-				float currentMove = depthCalculation(chessBoard, otherPlayer, player, 1, DEPTH);
-				std::cout << " = " << currentMove << std::endl;
+				// std::cout << (char)(pieceX + '0' + 17) << pieceY + 1 << " -> " << (char)(x + '0' + 17) << y + 1;
+				chessBoard.iterations++;
+				float currentMove;
+				if (player == WHITE_P)
+					currentMove = depthCalculation(chessBoard, otherPlayer, player, 1, DEPTH_WHITE, -INFINITY, INFINITY);
+				else
+					currentMove = depthCalculation(chessBoard, otherPlayer, player, 1, DEPTH_BLACK, -INFINITY, INFINITY);
+				// std::cout << " = " << currentMove << std::endl;
 
 				allMoves.push_back(Move(pieceX, pieceY, x, y, currentMove));
 
@@ -217,6 +229,7 @@ void	moveAI(Data &data, Board &chessBoard, int player)
 			chessBoard.checkmate = true;
 			return ;
 		}
+		chessBoard.iterations = 0;
 		if (data.turn == player)
 		{
 			std::vector<Move> allMoves;
@@ -231,7 +244,7 @@ void	moveAI(Data &data, Board &chessBoard, int player)
 					}
 				}
 			}
-
+			std::cout << "ITERATIONS: " << chessBoard.iterations << std::endl;
 			std::sort(allMoves.begin(), allMoves.end());
 			Move bestMove(allMoves[0]);
 			allMoves.clear();
