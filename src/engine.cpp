@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/20 10:13:52 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/20 14:53:51 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,21 +45,21 @@ static float	getOppositeSquare(int i)
 
 static float	getPieceSquareValue(ChessPiece *piece, int x, int y)
 {
-	switch (piece->getType()) {
-		case PAWN :
-			return (pawnFieldValues[y][x]);
-		case BISHOP :
-			return (bishopFieldValues[y][x]);
-		case KNIGHT :
-			return (knightFieldValues[y][x]);
-		case ROOK :
-			return (rookFieldValues[y][x]);
-		case QUEEN :
-			return (queenFieldValues[y][x]);
-		case KING :
-			return (kingFieldValues[y][x]);
-	}
-	return (0);
+	// switch (piece->getType()) {
+	// 	case PAWN :
+	// 		return (pawnFieldValues[y][x]);
+	// 	case BISHOP :
+	// 		return (bishopFieldValues[y][x]);
+	// 	case KNIGHT :
+	// 		return (knightFieldValues[y][x]);
+	// 	case ROOK :
+	// 		return (rookFieldValues[y][x]);
+	// 	case QUEEN :
+	// 		return (queenFieldValues[y][x]);
+	// 	case KING :
+	// 		return (kingFieldValues[y][x]);
+	// }
+	return (mgFieldValues[piece->getType()][y * x]);
 }
 
 float	calculateBoard(Board &chessBoard, int player, float factor)
@@ -76,21 +76,17 @@ float	calculateBoard(Board &chessBoard, int player, float factor)
 				int		pieceOwner = chessBoard.square[y][x].piece->getOwner();
 				int		pieceType = chessBoard.square[y][x].piece->getType();
 				bool	pieceMoved = chessBoard.square[y][x].piece->getHasMoved();
-				if (player == WHITE_P)
+				if (player == BLACK_P)
 				{
 					if (pieceOwner == player)
 					{
 						playerValue += chessBoard.square[y][x].piece->getValue();
 						playerValue += getPieceSquareValue(chessBoard.square[y][x].piece, getOppositeSquare(x), getOppositeSquare(y));
-						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
-							playerValue -= 5.0f;
 					}
 					else
 					{
 						opponentValue += chessBoard.square[y][x].piece->getValue();
 						opponentValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y);
-						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
-							opponentValue -= 5.0f;
 					}
 				}
 				else
@@ -99,22 +95,63 @@ float	calculateBoard(Board &chessBoard, int player, float factor)
 					{
 						playerValue += chessBoard.square[y][x].piece->getValue();
 						playerValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y);
-						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
-							playerValue -= 5.0f;
 					}
 					else
 					{
 						opponentValue += chessBoard.square[y][x].piece->getValue();
 						opponentValue += getPieceSquareValue(chessBoard.square[y][x].piece, getOppositeSquare(x), getOppositeSquare(y));
-						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
-							opponentValue -= 5.0f;
 					}
 				}
 			}
 		}
 	}
 	float boardValue = playerValue / opponentValue;
+	// if (lookForCheckmate(chessBoard))
+	// {
+	// 	boardValue += 10000;
+	// }
 	return (boardValue);
+}
+
+ChessPiece	*movePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY)
+{
+	ChessPiece *deletedPiece = chessBoard.square[targetY][targetX].piece;
+	chessBoard.square[targetY][targetX].piece = chessBoard.square[pieceY][pieceX].piece;
+	chessBoard.square[pieceY][pieceX].piece = nullptr;
+
+	int pieceOwner = chessBoard.square[targetY][targetX].piece->getOwner();
+	if (chessBoard.square[targetY][targetX].piece->getType() == PAWN
+		&& ((targetY == 7 && pieceOwner == BLACK_P) || (targetY == 0 && pieceOwner == WHITE_P)))
+	{
+		chessBoard.square[targetY][targetX].piece->setType(QUEEN);
+		chessBoard.square[targetY][targetX].piece->promotePawn();
+	}
+
+	if (chessBoard.square[targetY][targetX].piece->getType() == KING)
+	{
+		chessBoard.kingPosX[pieceOwner] = targetX;
+		chessBoard.kingPosY[pieceOwner] = targetY;
+	}
+	return (deletedPiece);
+}
+
+void	revertMovePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY, ChessPiece *deletedPiece)
+{
+	chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][targetX].piece;
+	chessBoard.square[targetY][targetX].piece = deletedPiece;
+
+	int pieceOwner = chessBoard.square[pieceY][pieceX].piece->getOwner();
+	if (chessBoard.square[pieceY][pieceX].piece->getPromotedPawn() == true)
+	{
+		chessBoard.square[pieceY][pieceX].piece->setType(PAWN);
+		chessBoard.square[pieceY][pieceX].piece->demotePawn();
+	}
+
+	if (chessBoard.square[pieceY][pieceX].piece->getType() == KING)
+	{
+		chessBoard.kingPosX[pieceOwner] = pieceX;
+		chessBoard.kingPosY[pieceOwner] = pieceY;
+	}
 }
 
 float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int currentDepth, int totalDepth, float alpha, float beta)
@@ -144,20 +181,16 @@ float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int 
 						{
 							if (currentDepth < totalDepth)
 							{
-								ChessPiece *deletedPiece = chessBoard.square[targetY][targetX].piece;
-								chessBoard.square[targetY][targetX].piece = chessBoard.square[pieceY][pieceX].piece;
-								chessBoard.square[pieceY][pieceX].piece = nullptr;
+								ChessPiece *deletedPiece = movePiece(chessBoard, pieceX, pieceY, targetX, targetY);
 								if (totalDepth == currentDepth + 1)
 								{
 									value = calculateBoard(chessBoard, calcPlayer, 100);
-									chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][targetX].piece;
-									chessBoard.square[targetY][targetX].piece = deletedPiece;
+									revertMovePiece(chessBoard, pieceX, pieceY, targetX, targetY, deletedPiece);
 									return (value);
 								}
 								float ret = depthCalculation(chessBoard, (movingPlayer  + 1) % 2, calcPlayer, currentDepth + 1, totalDepth, alpha, beta);
 								chessBoard.iterations++;
-								chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][targetX].piece;
-								chessBoard.square[targetY][targetX].piece = deletedPiece;
+								revertMovePiece(chessBoard, pieceX, pieceY, targetX, targetY, deletedPiece);
 								if ((movingPlayer == calcPlayer && ret > value) || (movingPlayer != calcPlayer && ret < value))
 								{
 									value = ret;
@@ -197,9 +230,7 @@ float	getBestMove(Board &chessBoard, int pieceX, int pieceY, int player, std::ve
 				&& isMovePossible(chessBoard, pieceX, pieceY, x - pieceX, y - pieceY, false)
 				&& !possibleMoveCheck(chessBoard, pieceX, pieceY, x, y))
 			{
-				ChessPiece *deletedPiece = chessBoard.square[y][x].piece;
-				chessBoard.square[y][x].piece = chessBoard.square[pieceY][pieceX].piece;
-				chessBoard.square[pieceY][pieceX].piece = NULL;
+				ChessPiece *deletedPiece = movePiece(chessBoard, pieceX, pieceY, x, y);
 
 				// std::cout << (char)(pieceX + '0' + 17) << pieceY + 1 << " -> " << (char)(x + '0' + 17) << y + 1;
 				chessBoard.iterations++;
@@ -212,8 +243,7 @@ float	getBestMove(Board &chessBoard, int pieceX, int pieceY, int player, std::ve
 
 				allMoves.push_back(Move(pieceX, pieceY, x, y, currentMove));
 
-				chessBoard.square[pieceY][pieceX].piece = chessBoard.square[y][x].piece;
-				chessBoard.square[y][x].piece = deletedPiece;
+				revertMovePiece(chessBoard, pieceX, pieceY, x, y, deletedPiece);
 			}
 		}
 	}
@@ -249,29 +279,13 @@ void	moveAI(Data &data, Board &chessBoard, int player)
 			Move bestMove(allMoves[0]);
 			allMoves.clear();
 
-			chessBoard.square[bestMove.getStartY()][bestMove.getStartX()].piece->setHasMoved(true);
-			ChessPiece *deletedPiece = NULL;
-			if (chessBoard.square[bestMove.getTargetY()][bestMove.getTargetX()].piece)
-				deletedPiece = chessBoard.square[bestMove.getTargetY()][bestMove.getTargetX()].piece;
-			chessBoard.square[bestMove.getTargetY()][bestMove.getTargetX()].piece = chessBoard.square[bestMove.getStartY()][bestMove.getStartX()].piece;
-			chessBoard.square[bestMove.getStartY()][bestMove.getStartX()].piece = NULL;
+			ChessPiece *deletedPiece = movePiece(chessBoard, bestMove.getStartX(), bestMove.getStartY(), bestMove.getTargetX(), bestMove.getTargetY());
 			if (data.moveNbr < data.history.size() - 1)
 			{
 				int	elemToDelete = (int) data.history.size() - 1 - data.moveNbr;
 				for (int i = 0; i < elemToDelete; ++i)
 					data.history.pop_back();
 			}
-
-			int pieceOwner = chessBoard.square[bestMove.getTargetY()][bestMove.getTargetX()].piece->getOwner();
-			if (chessBoard.square[bestMove.getTargetY()][bestMove.getTargetX()].piece->getType() == PAWN
-				&& ((bestMove.getTargetY() == 7 && pieceOwner == BLACK_P) || (bestMove.getTargetY() == 0 && pieceOwner == WHITE_P)))
-				chessBoard.square[bestMove.getTargetY()][bestMove.getTargetX()].piece->setType(QUEEN);
-			if (chessBoard.square[bestMove.getTargetY()][bestMove.getTargetX()].piece->getType() == KING)
-			{
-				chessBoard.kingPosX[pieceOwner] = bestMove.getTargetX();
-				chessBoard.kingPosY[pieceOwner] = bestMove.getTargetY();
-			}
-
 			History	history;
 			history.movedPiece = data.grabbedPiece;
 			if (deletedPiece != nullptr)

@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/20 10:19:00 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/20 13:32:00 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -311,7 +311,6 @@ bool	lookForCheckmate(Board &chessBoard)
 				}
 			}
 		}
-		std::cout << possibleMoves << std::endl;
 	}
 	if (possibleMoves >= 0)
 		return (false);
@@ -500,34 +499,34 @@ void	initPieces(Data &data)
 	// We always know the right y value, so we only need one loop
 	for (int i = 0; i < 8; ++i)
 	{
-		data.chessBoard.square[6][i].piece = new ChessPiece(WHITE_P, PAWN, 10);
-		data.chessBoard.square[1][i].piece = new ChessPiece(BLACK_P, PAWN, 10);
+		data.chessBoard.square[6][i].piece = new ChessPiece(WHITE_P, PAWN, 100);
+		data.chessBoard.square[1][i].piece = new ChessPiece(BLACK_P, PAWN, 100);
 		if (i == 1 || i == 6)
 		{
-			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, KNIGHT, 30);
-			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, KNIGHT, 30);
+			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, KNIGHT, 320);
+			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, KNIGHT, 320);
 		}
 		if (i == 2 || i == 5)
 		{
-			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, BISHOP, 30);
-			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, BISHOP, 30);
+			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, BISHOP, 330);
+			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, BISHOP, 330);
 		}
 		if (i == 0 || i == 7)
 		{
-			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, ROOK, 50);
-			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, ROOK, 50);
+			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, ROOK, 500);
+			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, ROOK, 500);
 		}
 		if (i == 3)
 		{
-			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, QUEEN, 90);
-			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, QUEEN, 90);
+			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, QUEEN, 900);
+			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, QUEEN, 900);
 		}
 		if (i == 4)
 		{
-			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, KING, 900);
+			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, KING, 20000);
 			data.chessBoard.kingPosX[WHITE_P] = i;
 			data.chessBoard.kingPosY[WHITE_P] = 7;
-			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, KING, 900);
+			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, KING, 20000);
 			data.chessBoard.kingPosX[BLACK_P] = i;
 			data.chessBoard.kingPosY[BLACK_P] = 0;
 		}

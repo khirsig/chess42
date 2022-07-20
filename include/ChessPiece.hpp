@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:33:09 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/06 12:05:22 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/20 13:18:41 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,12 +37,17 @@ class ChessPiece {
 		int		getValue() const { return (this->_value); }
 		bool	getGrabbed() const { return (this->_grabbed); }
 		bool	getHasMoved() const { return (this->_hasMoved); }
+		bool	getPromotedPawn() const { return (this->_promotedPawn); }
+
+		void	promotePawn() { this->_promotedPawn = true; }
+		void	demotePawn() { this->_promotedPawn = false; }
 	private:
 		int		_owner;
 		int		_type;
 		bool	_grabbed = false;
 		bool	_hasMoved = false;
 		int		_value;
+		bool	_promotedPawn = false;
 };
 
 #endif
