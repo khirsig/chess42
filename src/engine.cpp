@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/20 16:07:08 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/21 14:22:29 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,11 +72,15 @@ float	calculateBoard(Board &chessBoard, int player, float factor)
 					{
 						playerPieceValue += chessBoard.square[y][x].piece->getValue();
 						playerSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, getOppositeSquare(x), getOppositeSquare(y), chessBoard.endgame);
+						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
+							playerPieceValue -= 50;
 					}
 					else
 					{
 						opponentPieceValue += chessBoard.square[y][x].piece->getValue();
 						opponentSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y, chessBoard.endgame);
+						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
+							playerPieceValue -= 50;
 					}
 				}
 				else
@@ -85,11 +89,15 @@ float	calculateBoard(Board &chessBoard, int player, float factor)
 					{
 						playerPieceValue += chessBoard.square[y][x].piece->getValue();
 						playerSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y, chessBoard.endgame);
+						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
+							playerPieceValue -= 50;
 					}
 					else
 					{
 						opponentPieceValue += chessBoard.square[y][x].piece->getValue();
 						opponentSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, getOppositeSquare(x), getOppositeSquare(y), chessBoard.endgame);
+						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
+							playerPieceValue -= 50;
 					}
 				}
 			}
@@ -100,7 +108,7 @@ float	calculateBoard(Board &chessBoard, int player, float factor)
 	// 	chessBoard.endgame = true;
 	// 	std::cout << "ENDGAME ACTIVATED\n";
 	// }
-	float boardValue = (playerPieceValue + playerSquareValue) / (opponentPieceValue + opponentSquareValue);
+	float boardValue = (playerPieceValue + playerSquareValue) - (opponentPieceValue + opponentSquareValue);
 	return (boardValue);
 }
 
@@ -123,6 +131,15 @@ ChessPiece	*movePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, in
 		chessBoard.kingPosX[pieceOwner] = targetX;
 		chessBoard.kingPosY[pieceOwner] = targetY;
 	}
+
+	if (!chessBoard.square[targetY][targetX].piece->getHasMoved())
+	{
+		chessBoard.square[targetY][targetX].piece->setHasMoved(true);
+		chessBoard.square[targetY][targetX].piece->setFirstMoveLast(true);
+	}
+	else if (chessBoard.square[targetY][targetX].piece->getFirstMoveLast())
+		chessBoard.square[targetY][targetX].piece->setFirstMoveLast(false);
+
 	return (deletedPiece);
 }
 
@@ -142,6 +159,12 @@ void	revertMovePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int
 	{
 		chessBoard.kingPosX[pieceOwner] = pieceX;
 		chessBoard.kingPosY[pieceOwner] = pieceY;
+	}
+
+	if (chessBoard.square[pieceY][pieceX].piece->getFirstMoveLast())
+	{
+		chessBoard.square[pieceY][pieceX].piece->setFirstMoveLast(false);
+		chessBoard.square[pieceY][pieceX].piece->setHasMoved(false);
 	}
 }
 
