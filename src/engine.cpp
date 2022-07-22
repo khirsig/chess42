@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/22 13:59:59 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/22 14:16:52 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,15 +107,51 @@ float	calculateBoard(Board &chessBoard, int player, float factor)
 	{
 		if (chessBoard.castled[WHITE_P] == -1)
 			playerSquareValue -= 60;
+		else
+		{
+			if (chessBoard.square[chessBoard.kingPosY[WHITE_P] - 1][chessBoard.kingPosX[WHITE_P]].piece == NULL)
+				playerSquareValue -= 20;
+			if (chessBoard.square[chessBoard.kingPosY[WHITE_P] - 1][chessBoard.kingPosX[WHITE_P] - 1].piece == NULL)
+				playerSquareValue -= 20;
+			if (chessBoard.square[chessBoard.kingPosY[WHITE_P] - 1][chessBoard.kingPosX[WHITE_P] + 1].piece == NULL)
+				playerSquareValue -= 20;
+		}
 		if (chessBoard.castled[BLACK_P] == -1)
 			opponentSquareValue -= 60;
+		else
+		{
+			if (chessBoard.square[chessBoard.kingPosY[BLACK_P] + 1][chessBoard.kingPosX[BLACK_P]].piece == NULL)
+				opponentSquareValue -= 20;
+			if (chessBoard.square[chessBoard.kingPosY[BLACK_P] + 1][chessBoard.kingPosX[BLACK_P] - 1].piece == NULL)
+				opponentSquareValue -= 20;
+			if (chessBoard.square[chessBoard.kingPosY[BLACK_P] + 1][chessBoard.kingPosX[BLACK_P] + 1].piece == NULL)
+				opponentSquareValue -= 20;
+		}
 	}
 	else
 	{
 		if (chessBoard.castled[BLACK_P] == -1)
 			playerSquareValue -= 60;
+		else
+		{
+			if (chessBoard.square[chessBoard.kingPosY[BLACK_P] + 1][chessBoard.kingPosX[BLACK_P]].piece == NULL)
+				playerSquareValue -= 20;
+			if (chessBoard.square[chessBoard.kingPosY[BLACK_P] + 1][chessBoard.kingPosX[BLACK_P] - 1].piece == NULL)
+				playerSquareValue -= 20;
+			if (chessBoard.square[chessBoard.kingPosY[BLACK_P] + 1][chessBoard.kingPosX[BLACK_P] + 1].piece == NULL)
+				playerSquareValue -= 20;
+		}
 		if (chessBoard.castled[WHITE_P] == -1)
 			opponentSquareValue -= 60;
+		else
+		{
+			if (chessBoard.square[chessBoard.kingPosY[WHITE_P] - 1][chessBoard.kingPosX[WHITE_P]].piece == NULL)
+				opponentSquareValue -= 20;
+			if (chessBoard.square[chessBoard.kingPosY[WHITE_P] - 1][chessBoard.kingPosX[WHITE_P] - 1].piece == NULL)
+				opponentSquareValue -= 20;
+			if (chessBoard.square[chessBoard.kingPosY[WHITE_P] - 1][chessBoard.kingPosX[WHITE_P] + 1].piece == NULL)
+				opponentSquareValue -= 20;
+		}
 	}
 	if (chessBoard.endgame == false && playerPieceValue < endGameThreshold && opponentPieceValue < endGameThreshold)
 	{
