@@ -1,27 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   History.hpp                                        :+:      :+:    :+:   */
+/*   Board.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/24 14:35:57 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/24 14:51:14 by khirsig          ###   ########.fr       */
+/*   Created: 2022/07/19 11:58:22 by khirsig           #+#    #+#             */
+/*   Updated: 2022/07/22 09:44:33 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef HISTORY_HPP
-# define HISTORY_HPP
+#ifndef BOARD_HPP
+# define BOARD_HPP
 
-# include "ChessPiece.hpp"
+# include "./BoardSquare.hpp"
 
-struct History {
-	ChessPiece	*movedPiece;
-	ChessPiece	*removedPiece;
-	int			fromX;
-	int			fromY;
-	int			toX;
-	int			toY;
+struct Board {
+	BoardSquare	square[8][8];
+	int			kingPosX[2];
+	int			kingPosY[2];
+	bool		kingCheck[2] = { false, false };
+	int			castled[2] = { -1, -1 };
+	bool		checkmate = false;
+	bool		stalemate = false;
+	int			moveTurn = 0;
+	int			iterations = 0;
+	bool		endgame = false;
 };
 
 #endif

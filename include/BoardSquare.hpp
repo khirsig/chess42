@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:32:27 by khirsig           #+#    #+#             */
-/*   Updated: 2022/06/24 09:28:18 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/22 09:07:26 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 
 struct BoardSquare {
 	ChessPiece	*piece;
+	bool		debug = false;
 };
 
 

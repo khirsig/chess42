@@ -6,22 +6,25 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/04 23:35:57 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/22 12:36:50 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Data.hpp"
 
-int	kingMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd)
+int	kingMove(Board &chessBoard, int pieceX, int pieceY, int xAdd, int yAdd)
 {
 	// The first case checks if we try to castle.
 	// It checks if the piece on the target square a rook and if any of the involved pieces have already moved.
+	// if (chessBoard.square[pieceY][pieceX + xAdd].piece != nullptr)
 	if (abs(xAdd) > 0 && yAdd == 0
-		&& data.square[pieceY][pieceX + xAdd].piece != nullptr
-		&& data.square[pieceY][pieceX + xAdd].piece->getType() == ROOK
-		&& !data.square[pieceY][pieceX + xAdd].piece->getHasMoved()
-		&& !piece->getHasMoved())
+		&& chessBoard.castled[chessBoard.square[pieceY][pieceX].piece->getOwner()] == -1
+		&& chessBoard.square[pieceY][pieceX + xAdd].piece != nullptr
+		&& chessBoard.square[pieceY][pieceX + xAdd].piece->getType() == ROOK
+		&& !chessBoard.square[pieceY][pieceX + xAdd].piece->getHasMoved()
+		&& !chessBoard.square[pieceY][pieceX].piece->getHasMoved())
 	{
+		// std::cout << "ATTEMPTING CASTLE\n";
 		int incr;
 		if (xAdd > 0)
 			incr = 1;
@@ -31,9 +34,9 @@ int	kingMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, in
 		// The loop checks if we do not jump over pieces while castling
 		while ((incr == 1 && x <= xAdd) || (incr == -1 && x >= xAdd))
 		{
-			if (data.square[pieceY][pieceX + x].piece != nullptr && x != xAdd)
+			if (chessBoard.square[pieceY][pieceX + x].piece != nullptr && x != xAdd)
 				return (-1);
-			if (data.square[pieceY][pieceX + x].piece != nullptr && x == xAdd)
+			if (chessBoard.square[pieceY][pieceX + x].piece != nullptr && x == xAdd)
 			{
 				if (pieceX + x == 0)
 					return (KING_LONG_CASTLE);
@@ -44,6 +47,10 @@ int	kingMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, in
 			x += incr;
 		}
 	}
+	if (chessBoard.square[pieceY + yAdd][pieceX + xAdd].piece
+		&& chessBoard.square[pieceY + yAdd][pieceX + xAdd].piece->getOwner()
+		==  chessBoard.square[pieceY][pieceX].piece->getOwner())
+		return (-1);
 	// The last two cases check if the kings tries to move further than one field in his normal movement.
 	if (abs(xAdd) > 1 || abs(yAdd) > 1)
 		return (-1);
@@ -52,11 +59,17 @@ int	kingMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, in
 	return (KING_NORMAL);
 }
 
-bool	rookMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
+bool	rookMove(Board &chessBoard, int owner, int pieceX, int pieceY, int xAdd, int yAdd)
 {
 	// The rook can only move on the straights. So if xAdd and yAdd are both != 0 returns false.
 	if (xAdd != 0 && yAdd != 0)
 		return (false);
+	if (chessBoard.square[pieceY + yAdd][pieceX + xAdd].piece
+		&& chessBoard.square[pieceY + yAdd][pieceX + xAdd].piece->getOwner()
+		==  chessBoard.square[pieceY][pieceX].piece->getOwner())
+		return (false);
+	// if (chessBoard.square[pieceX + xAdd][pieceY + yAdd].piece && chessBoard.square[pieceX + xAdd][pieceY + yAdd].piece->getOwner() == owner)
+	// 	return (false);
 
 	// We set both the x increment value and the y increment value according if our xAdd and yAdd goal are positive or negative.
 	// This way we can iterate through the loop later in correct directions at the same time.
@@ -76,7 +89,7 @@ bool	rookMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 	// This loop checks if the rook tries to jump over other pieces. If it tries to, return false.
 	while (((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd) || (yIncr == 0)) && ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd) || (xIncr == 0)))
 	{
-		if (data.square[pieceY + y][pieceX + x].piece != nullptr && (x != xAdd || y != yAdd))
+		if (chessBoard.square[pieceY + y][pieceX + x].piece != nullptr && (x != xAdd || y != yAdd))
 			return (false);
 
 		if ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd))
@@ -87,20 +100,32 @@ bool	rookMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 	return (true);
 }
 
-bool	knightMove(Data &data, int xAdd, int yAdd)
+bool	knightMove(Board &chessBoard, int owner, int pieceX, int pieceY, int xAdd, int yAdd)
 {
 	if (!((abs(xAdd) == 2 && abs(yAdd) == 1) || (abs(xAdd) == 1 && abs(yAdd) == 2)))
 		return (false);
+	if (chessBoard.square[pieceY + yAdd][pieceX + xAdd].piece
+		&& chessBoard.square[pieceY + yAdd][pieceX + xAdd].piece->getOwner()
+		==  chessBoard.square[pieceY][pieceX].piece->getOwner())
+		return (false);
+	// if (chessBoard.square[pieceX + xAdd][pieceY + yAdd].piece && chessBoard.square[pieceX + xAdd][pieceY + yAdd].piece->getOwner() == owner)
+	// 	return (false);
 	return (true);
 }
 
-bool	bishopMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
+bool	bishopMove(Board &chessBoard, int owner, int pieceX, int pieceY, int xAdd, int yAdd)
 {
 	// Checks if the bishop moves only in diagonals, if not returns false
+	if (chessBoard.square[pieceY + yAdd][pieceX + xAdd].piece
+		&& chessBoard.square[pieceY + yAdd][pieceX + xAdd].piece->getOwner()
+		==  chessBoard.square[pieceY][pieceX].piece->getOwner())
+		return (false);
 	if (xAdd == 0 || yAdd == 0)
 		return (false);
 	if (abs(xAdd) != abs(yAdd))
 		return (false);
+	// if (chessBoard.square[pieceX + xAdd][pieceY + yAdd].piece && chessBoard.square[pieceX + xAdd][pieceY + yAdd].piece->getOwner() == owner)
+	// 	return (false);
 
 	// We set both the x increment value and the y increment value according if our xAdd and yAdd goal are positive or negative
 	// This way we can iterate through the loop later in correct directions at the same time.
@@ -120,7 +145,7 @@ bool	bishopMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 	// The loop makes sure that the bishop does not jump over pieces. If it tries to, returns false.
 	while (((yIncr == 1 && y <= yAdd) || (yIncr == -1 && y >= yAdd) || (yIncr == 0)) && ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd) || (xIncr == 0)))
 	{
-		if (data.square[pieceY + y][pieceX + x].piece != nullptr && (x != xAdd || y != yAdd))
+		if (chessBoard.square[pieceY + y][pieceX + x].piece != nullptr && (x != xAdd || y != yAdd))
 			return (false);
 
 		if ((xIncr == 1 && x <= xAdd) || (xIncr == -1 && x >= xAdd))
@@ -131,20 +156,34 @@ bool	bishopMove(Data &data, int pieceX, int pieceY, int xAdd, int yAdd)
 	return (true);
 }
 
-bool	pawnMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck)
+bool	pawnMove(Board &chessBoard, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck)
 {
 	// The Pawn can either move two fields if it has not been moved yet, or one field.
 	// Taking pieces is a bit different with pawns so we need a special check for it.
 	// If lookForCheck is true, we only look for the diagonal movement.
-	if ((yAdd > 0 && piece->getOwner() == WHITE_P) || (yAdd < 0 && piece->getOwner() == BLACK_P))
+	if (abs(yAdd) > 2 || abs(xAdd) > 1)
 		return (false);
-	if (yAdd > 2 || yAdd < -2)
+	if (chessBoard.square[pieceY + yAdd][pieceX + xAdd].piece && abs(xAdd) != 1)
 		return (false);
-	if ((yAdd > 1 && pieceY != 1) || (yAdd < -1 && pieceY != 6))
+	if (chessBoard.square[pieceY][pieceX].piece->getOwner() == WHITE_P)
+	{
+		if (yAdd > 0)
 			return (false);
-	if (xAdd != 0 && yAdd == 0)
-		return (false);
-	if (xAdd > 1 || xAdd < -1)
+		if (pieceY != 6 && abs(yAdd) > 1)
+			return (false);
+		if (yAdd == -1 && abs(xAdd) == 1 && chessBoard.square[pieceY + yAdd][pieceX + xAdd].piece && chessBoard.square[pieceY + yAdd][pieceX + xAdd].piece->getOwner() == BLACK_P)
+			return (true);
+	}
+	else
+	{
+		if (yAdd < 0)
+			return (false);
+		if (pieceY != 1 && abs(yAdd) > 1)
+			return (false);
+		if (yAdd == 1 && abs(xAdd) == 1 && chessBoard.square[pieceY + yAdd][pieceX + xAdd].piece && chessBoard.square[pieceY + yAdd][pieceX + xAdd].piece->getOwner() == WHITE_P)
+			return (true);
+	}
+	if (abs(yAdd) != 1 && abs(xAdd) >= 1)
 		return (false);
 
 	int	incr = 0;
@@ -156,79 +195,62 @@ bool	pawnMove(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, i
 
 	while ((incr == 1 && i <= yAdd) || (incr == -1 && i >= yAdd))
 	{
-		if (data.square[pieceY + i][pieceX + xAdd].piece != nullptr && xAdd == 0)
+		if (chessBoard.square[pieceY + i][pieceX + xAdd].piece != nullptr && xAdd == 0)
 			return (false);
-		if (data.square[pieceY + i][pieceX + xAdd].piece == nullptr && xAdd != 0)
+		if (chessBoard.square[pieceY + i][pieceX + xAdd].piece == nullptr && xAdd != 0)
 			return (false);
 		i += incr;
 	}
-	if (abs(pieceX) == 0 && lookForCheck)
+	if (abs(xAdd) == 0 && lookForCheck)
 		return (false);
 	return (true);
 }
 
-bool	isMovePossible(Data &data, ChessPiece *piece, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck)
+bool	isMovePossible(Board &chessBoard, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck)
 {
 	// If there is no range of a movement, the move is just not possible.
 	if (xAdd == 0 && yAdd == 0)
 		return (false);
+	int	pieceOwner = chessBoard.square[pieceY][pieceX].piece->getOwner();
 	// Since every piece has a different way of moving we need to find the right type first.
 	// Every piece has its own move function that checks if the fields it wants to move through are possible.
 	// The King has some special cases with castling.
-	switch (piece->getType()) {
+	switch (chessBoard.square[pieceY][pieceX].piece->getType()) {
 		case PAWN :
-			if (pawnMove(data, piece, pieceX, pieceY, xAdd, yAdd, lookForCheck))
+			if (pawnMove(chessBoard, pieceX, pieceY, xAdd, yAdd, lookForCheck))
 				return (true);
 			break ;
 		case BISHOP :
-			if (bishopMove(data, pieceX, pieceY, xAdd, yAdd))
+			if (bishopMove(chessBoard, pieceOwner, pieceX, pieceY, xAdd, yAdd))
 				return (true);
 			break ;
 		case KNIGHT :
-			if (knightMove(data, xAdd, yAdd))
+			if (knightMove(chessBoard, pieceOwner, pieceX, pieceY, xAdd, yAdd))
 				return (true);
 			break;
 		case ROOK :
-			if (rookMove(data, pieceX, pieceY, xAdd, yAdd))
+			if (rookMove(chessBoard, pieceOwner, pieceX, pieceY, xAdd, yAdd))
 				return (true);
 			break ;
 		case QUEEN :
-			if (bishopMove(data, pieceX, pieceY, xAdd, yAdd) || rookMove(data, pieceX, pieceY, xAdd, yAdd))
+			if (bishopMove(chessBoard, pieceOwner, pieceX, pieceY, xAdd, yAdd) || rookMove(chessBoard, pieceOwner, pieceX, pieceY, xAdd, yAdd))
 				return (true);
 			break ;
 		case KING :
-			int ret = kingMove(data, piece, pieceX, pieceY, xAdd, yAdd);
+			int ret = kingMove(chessBoard, pieceX, pieceY, xAdd, yAdd);
 			if (ret == KING_NORMAL)
 				return (true);
 			if (ret == KING_SHORT_CASTLE)
-			{
-				// If kingMove returns KING_SHORT_CASTLE or KING_LONG_CASTLE it does the according moves hardcoded.
-				data.square[pieceY][pieceX + 1].piece = data.square[pieceY][pieceX + xAdd].piece;
-				data.square[pieceY][pieceX + 1].piece->setHasMoved(true);
-				data.square[pieceY][pieceX + xAdd].piece = nullptr;
-				data.square[pieceY][pieceX + 2].piece = piece;
-				data.square[pieceY][pieceX + 2].piece->setHasMoved(true);
-				data.kingPosX[data.square[pieceY][pieceX + 2].piece->getOwner()] = pieceX + 2;
-				data.square[pieceY][pieceX].piece = nullptr;
-			}
+				return (true);
 			if (ret == KING_LONG_CASTLE)
-			{
-				// If kingMove returns KING_SHORT_CASTLE or KING_LONG_CASTLE it does the according moves hardcoded.
-				data.square[pieceY][pieceX - 1].piece = data.square[pieceY][pieceX + xAdd].piece;
-				data.square[pieceY][pieceX - 1].piece->setHasMoved(true);
-				data.square[pieceY][pieceX + xAdd].piece = nullptr;
-				data.square[pieceY][pieceX - 2].piece = piece;
-				data.square[pieceY][pieceX - 2].piece->setHasMoved(true);
-				data.kingPosX[data.square[pieceY][pieceX - 2].piece->getOwner()] = pieceX - 2;
-				data.square[pieceY][pieceX].piece = nullptr;
-			}
+				return (true);
 			return (false);
 			break ;
 	}
 	return (false);
 }
 
-bool	lookForCheck(Data &data, int player)
+bool	lookForCheck(Board &chessBoard, int player)
 {
 	int otherPlayer;
 
@@ -243,12 +265,13 @@ bool	lookForCheck(Data &data, int player)
 		for (int x = 0; x < 8; ++x)
 		{
 			// Only looks at pieces of the opposite player, because only they could give a check.
-			if (data.square[y][x].piece && data.square[y][x].piece->getOwner() == otherPlayer)
+			if (chessBoard.square[y][x].piece && chessBoard.square[y][x].piece->getOwner() == otherPlayer)
 			{
 				// Looks if any of those pieces could make a theoretical move to the position of the king.
 				// We need the piece that could give check and its position and also the x and y value it would need to make that move.
 				// Last bool should be true because we're looking for a check, not moving.
-				if (isMovePossible(data, data.square[y][x].piece, x, y, data.kingPosX[player] - x, data.kingPosY[player] - y, true))
+				if (isMovePossible(chessBoard, x, y,
+					chessBoard.kingPosX[player] - x, chessBoard.kingPosY[player] - y, true))
 					return (true);
 			}
 		}
@@ -257,52 +280,58 @@ bool	lookForCheck(Data &data, int player)
 	return (false);
 }
 
-void	toggleCheckBothPlayers(Data &data)
+bool	lookForCheckmate(Board &chessBoard)
 {
-		if (lookForCheck(data, WHITE_P))
-			data.kingCheck[WHITE_P] = true;
+	int	possibleMoves = 0;
+
+	if (chessBoard.kingCheck[WHITE_P] || chessBoard.kingCheck[BLACK_P])
+	{
+		int player;
+		if (chessBoard.kingCheck[WHITE_P])
+			player = WHITE_P;
 		else
-			data.kingCheck[WHITE_P] = false;
-		if (lookForCheck(data, BLACK_P))
-			data.kingCheck[BLACK_P] = true;
-		else
-			data.kingCheck[BLACK_P] = false;
+			player = BLACK_P;
+		for (int y = 0; y < 8; ++y)
+		{
+			for (int x = 0; x < 8; ++x)
+			{
+				for (int innerY = 0; innerY < 8; ++innerY)
+				{
+					for (int innerX = 0; innerX < 8; ++innerX)
+					{
+						if (chessBoard.square[y][x].piece && chessBoard.square[y][x].piece->getOwner() == player
+							&& isMovePossible(chessBoard, x, y, innerX - x, innerY - y, false))
+						{
+							if (!possibleMoveCheck(chessBoard, x, y, innerX, innerY))
+							{
+								if ((chessBoard.square[innerY][innerX].piece && chessBoard.square[innerY][innerX].piece->getOwner() != player) || !chessBoard.square[innerY][innerX].piece)
+									possibleMoves++;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if (possibleMoves >= 0)
+		return (false);
+	else
+		return (true);
 }
 
-void	moveThroughHistory(Data &data)
+void	toggleCheckBothPlayers(Board &chessBoard)
 {
-	if (data.history.size() > 0 && IsKeyPressed(KEY_LEFT) && data.moveNbr >= 0)
-	{
-		if (data.history[data.moveNbr].removedPiece)
-			data.square[data.history[data.moveNbr].toY][data.history[data.moveNbr].toX].piece = data.history[data.moveNbr].removedPiece;
+		if (lookForCheck(chessBoard, WHITE_P))
+			chessBoard.kingCheck[WHITE_P] = true;
 		else
-			data.square[data.history[data.moveNbr].toY][data.history[data.moveNbr].toX].piece = nullptr;
-		data.square[data.history[data.moveNbr].fromY][data.history[data.moveNbr].fromX].piece = data.history[data.moveNbr].movedPiece;
-		if (data.moveNbr - 1 >= 0)
-		{
-			data.lastMove[0] = &data.square[data.history[data.moveNbr - 1].fromY][data.history[data.moveNbr - 1].fromX];
-			data.lastMove[1] = &data.square[data.history[data.moveNbr - 1].toY][data.history[data.moveNbr - 1].toX];
-		}
+			chessBoard.kingCheck[WHITE_P] = false;
+		if (lookForCheck(chessBoard, BLACK_P))
+			chessBoard.kingCheck[BLACK_P] = true;
 		else
-		{
-			data.lastMove[0] = nullptr;
-			data.lastMove[1] = nullptr;
-		}
-		data.moveNbr--;
-		toggleCheckBothPlayers(data);
-	}
-	if (data.history.size() > 0 && IsKeyPressed(KEY_RIGHT) && (data.moveNbr < data.history.size() - 1 || data.moveNbr == -1))
-	{
-		data.moveNbr++;
-		data.square[data.history[data.moveNbr].fromY][data.history[data.moveNbr].fromX].piece = nullptr;
-		data.square[data.history[data.moveNbr].toY][data.history[data.moveNbr].toX].piece = data.history[data.moveNbr].movedPiece;
-		data.lastMove[0] = &data.square[data.history[data.moveNbr].fromY][data.history[data.moveNbr].fromX];
-		data.lastMove[1] = &data.square[data.history[data.moveNbr].toY][data.history[data.moveNbr].toX];
-		toggleCheckBothPlayers(data);
-	}
+			chessBoard.kingCheck[BLACK_P] = false;
 }
 
-void	placePiece(Data &data)
+void	placePiece(Data &data, int player)
 {
 	// Checks if the left mouse button is released while we had a piece grabbed.
 	if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && data.grabbedPiece != nullptr)
@@ -316,69 +345,42 @@ void	placePiece(Data &data)
 		// Checks if the move from the position of the grabbed piece to the position of the mouse cursor is possible.
 		// To do so it needs a pointer to the piece, the grabbed piece position and the x and y value that would need to be added to it to make that move.
 		// Last bool should only be true if we're looking for a check.
-		if (isMovePossible(data, data.grabbedPiece, data.grabbedPiecePosX, data.grabbedPiecePosY, x - data.grabbedPiecePosX, y - data.grabbedPiecePosY, false))
+		if (!data.chessBoard.checkmate && data.turn == data.grabbedPiece->getOwner() && isMovePossible(data.chessBoard, data.grabbedPiecePosX, data.grabbedPiecePosY, x - data.grabbedPiecePosX, y - data.grabbedPiecePosY, false))
 		{
 			// If the move is theoretically possible, checks if the square our piece lands on does not have any piece of the same owner on it, or is empty.
-			if ((data.square[y][x].piece != nullptr && data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece->getOwner() != data.square[y][x].piece->getOwner()) || data.square[y][x].piece == nullptr)
+			if ((data.chessBoard.square[y][x].piece != nullptr
+				&& data.chessBoard.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece->getOwner() != data.chessBoard.square[y][x].piece->getOwner())
+				|| data.chessBoard.square[y][x].piece == nullptr || (data.chessBoard.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece->getType() == KING && (x == 7 || x == 0)))
 			{
-				// If this is also true, makes the move.
-				data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = nullptr;
-				// If there is an piece that would get overwritten, save the address just in case.
-				ChessPiece *deletedPiece = nullptr;
-				if (data.square[y][x].piece)
-					deletedPiece = data.square[y][x].piece;
-				data.square[y][x].piece = data.grabbedPiece;
+				ChessPiece *deletedPiece = movePiece(data.chessBoard, data.grabbedPiecePosX, data.grabbedPiecePosY, x, y);
 
-				// Player stores the owner of the piece that made the move.
-				int player = data.square[y][x].piece->getOwner();
-
-				// If any king made a move, updates the new position.
-				if (data.grabbedPiece->getType() == KING)
-				{
-					data.kingPosX[data.grabbedPiece->getOwner()] = x;
-					data.kingPosY[data.grabbedPiece->getOwner()] = y;
-				}
 				// Now after the move has been made, checks if there is any check for the player that made the move.
-				if (lookForCheck(data, player))
-				{
-					// If there is a check, the move will be reversed and the deleted piece will be put back in place.
-					if (deletedPiece)
-						data.square[y][x].piece = deletedPiece;
-					else
-						data.square[y][x].piece = nullptr;
-					data.square[data.grabbedPiecePosY][data.grabbedPiecePosX].piece = data.grabbedPiece;
-					// Also resets the position of the king if he was moved.
-					if (data.grabbedPiece->getType() == KING)
-					{
-						data.kingPosX[data.grabbedPiece->getOwner()] = data.grabbedPiecePosX;
-						data.kingPosY[data.grabbedPiece->getOwner()] = data.grabbedPiecePosY;
-					}
-				}
+				if (lookForCheck(data.chessBoard, player))
+					revertMovePiece(data.chessBoard, data.grabbedPiecePosX, data.grabbedPiecePosY, x, y, deletedPiece, player);
 				else
 				{
-					// If the piece really moved, set the bool hasMoved to true.
-					if (!data.grabbedPiece->getHasMoved())
-						data.grabbedPiece->setHasMoved(true);
 					// The square from - to the move happened are saved for different color in board drawing.
-					data.lastMove[0] = &data.square[data.grabbedPiecePosY][data.grabbedPiecePosX];
-					data.lastMove[1] = &data.square[y][x];
-					if (data.moveNbr < data.history.size() - 1)
+					if (data.chessBoard.castled[player] != data.chessBoard.moveTurn)
 					{
-						int	elemToDelete = (int) data.history.size() - 1 - data.moveNbr;
-						for (int i = 0; i < elemToDelete; ++i)
-							data.history.pop_back();
+						data.lastMove[0] = &data.chessBoard.square[data.grabbedPiecePosY][data.grabbedPiecePosX];
+						data.lastMove[1] = &data.chessBoard.square[y][x];
 					}
-					History	history;
-					history.movedPiece = data.grabbedPiece;
-					if (deletedPiece != nullptr)
-						history.removedPiece = deletedPiece;
-					history.fromX = data.grabbedPiecePosX;
-					history.fromY = data.grabbedPiecePosY;
-					history.toX = x;
-					history.toY = y;
-					data.history.push_back(history);
+					else
+					{
+						if (data.chessBoard.kingPosX[player] == 6)
+							data.lastMove[0] = &data.chessBoard.square[data.chessBoard.kingPosY[player]][data.chessBoard.kingPosX[player] - 1];
+						else
+							data.lastMove[0] = &data.chessBoard.square[data.chessBoard.kingPosY[player]][data.chessBoard.kingPosX[player] + 1];
+						data.lastMove[1] = &data.chessBoard.square[data.chessBoard.kingPosY[player]][data.chessBoard.kingPosX[player]];
+					}
 					data.moveNbr++;
-					data.turn = BLACK_P;
+
+					int otherPlayer;
+					if (player == WHITE_P)
+						otherPlayer = BLACK_P;
+					else
+						otherPlayer = WHITE_P;
+					data.turn = otherPlayer;
 				}
 			}
 		}
@@ -390,7 +392,9 @@ void	placePiece(Data &data)
 		data.grabbedPiecePosX = -1;
 		data.grabbedPiecePosY = -1;
 		// After everything is over looks for checks on both players. If one king is in check sets the bool for board drawing.
-		toggleCheckBothPlayers(data);
+		toggleCheckBothPlayers(data.chessBoard);
+		if (lookForCheckmate(data.chessBoard))
+			data.chessBoard.checkmate = true;
 	}
 
 }
@@ -408,10 +412,10 @@ void	grabPiece(Data &data)
 		x /= size;
 		y /= size;
 		// Sets the pointer and also saves the position of the grabbed piece.
-		if (data.square[y][x].piece != nullptr)
+		if (data.chessBoard.square[y][x].piece != nullptr)
 		{
-			data.grabbedPiece = data.square[y][x].piece;
-			data.square[y][x].piece->setGrabbed(true);
+			data.grabbedPiece = data.chessBoard.square[y][x].piece;
+			data.chessBoard.square[y][x].piece->setGrabbed(true);
 			data.grabbedPiecePosX = x;
 			data.grabbedPiecePosY = y;
 		}
@@ -425,43 +429,43 @@ void	initPieces(Data &data)
 	{
 		for (int y = 0; y < 8; ++y)
 		{
-			data.square[x][y].piece = nullptr;
+			data.chessBoard.square[x][y].piece = nullptr;
 		}
 	}
 	// Iterates through all the x fields and puts the right pieces for both players on the board.
 	// We always know the right y value, so we only need one loop
 	for (int i = 0; i < 8; ++i)
 	{
-		data.square[6][i].piece = new ChessPiece(WHITE_P, PAWN, 10);
-		data.square[1][i].piece = new ChessPiece(BLACK_P, PAWN, 10);
+		data.chessBoard.square[6][i].piece = new ChessPiece(WHITE_P, PAWN, 100);
+		data.chessBoard.square[1][i].piece = new ChessPiece(BLACK_P, PAWN, 100);
 		if (i == 1 || i == 6)
 		{
-			data.square[7][i].piece = new ChessPiece(WHITE_P, KNIGHT, 30);
-			data.square[0][i].piece = new ChessPiece(BLACK_P, KNIGHT, 30);
+			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, KNIGHT, 320);
+			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, KNIGHT, 320);
 		}
 		if (i == 2 || i == 5)
 		{
-			data.square[7][i].piece = new ChessPiece(WHITE_P, BISHOP, 30);
-			data.square[0][i].piece = new ChessPiece(BLACK_P, BISHOP, 30);
+			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, BISHOP, 330);
+			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, BISHOP, 330);
 		}
 		if (i == 0 || i == 7)
 		{
-			data.square[7][i].piece = new ChessPiece(WHITE_P, ROOK, 50);
-			data.square[0][i].piece = new ChessPiece(BLACK_P, ROOK, 50);
+			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, ROOK, 500);
+			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, ROOK, 500);
 		}
 		if (i == 3)
 		{
-			data.square[7][i].piece = new ChessPiece(WHITE_P, QUEEN, 90);
-			data.square[0][i].piece = new ChessPiece(BLACK_P, QUEEN, 90);
+			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, QUEEN, 900);
+			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, QUEEN, 900);
 		}
 		if (i == 4)
 		{
-			data.square[7][i].piece = new ChessPiece(WHITE_P, KING, 900);
-			data.kingPosX[WHITE_P] = i;
-			data.kingPosY[WHITE_P] = 7;
-			data.square[0][i].piece = new ChessPiece(BLACK_P, KING, 900);
-			data.kingPosX[BLACK_P] = i;
-			data.kingPosY[BLACK_P] = 0;
+			data.chessBoard.square[7][i].piece = new ChessPiece(WHITE_P, KING, 20000);
+			data.chessBoard.kingPosX[WHITE_P] = i;
+			data.chessBoard.kingPosY[WHITE_P] = 7;
+			data.chessBoard.square[0][i].piece = new ChessPiece(BLACK_P, KING, 20000);
+			data.chessBoard.kingPosX[BLACK_P] = i;
+			data.chessBoard.kingPosY[BLACK_P] = 0;
 		}
 	}
 }
@@ -541,24 +545,24 @@ void	drawAllPieces(Data &data)
 {
 	int size = SCREEN_WIDTH / 8;
 
-	// Iterating through all possible boardsquares.
+	// Iterating through all possible Boards.
 	for (int x = 7; x >= 0; --x)
 	{
 		for (int y = 7; y >= 0; --y)
 		{
 			// Checking if there is an actual piece on the current square
-			if (data.square[y][x].piece != nullptr)
+			if (data.chessBoard.square[y][x].piece != nullptr)
 			{
 				raylib::Vector2 pos;
 				float			scale;
 
-				int	pieceType = data.square[y][x].piece->getType();
-				int pieceOwner = data.square[y][x].piece->getOwner();
+				int	pieceType = data.chessBoard.square[y][x].piece->getType();
+				int pieceOwner = data.chessBoard.square[y][x].piece->getOwner();
 				pos.x = x * size;
 				pos.y = y * size;
 				scale = (float)size / 1280;
 				// If it is not the grabbed piece, draw it with the correct texture.
-				if (!data.square[y][x].piece->getGrabbed())
+				if (!data.chessBoard.square[y][x].piece->getGrabbed())
 					drawPiece(data, pieceType, pieceOwner, pos, scale);
 			}
 		}
@@ -575,7 +579,69 @@ void	drawAllPieces(Data &data)
 		pos.x = GetMouseX() - size / 2;
 		pos.y = GetMouseY() - size / 2;
 		scale = (float)size / 1280;
-		drawPiece(data, pieceType, pieceOwner, pos, scale);
+		drawPiece(data, pieceType, pieceOwner, pos, scale * 1.10);
+	}
+}
+
+bool	possibleMoveCheck(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY)
+{
+	bool isCheck = false;
+	int player = chessBoard.square[pieceY][pieceX].piece->getOwner();
+
+	ChessPiece *deletedPiece  = movePiece(chessBoard, pieceX, pieceY, targetX, targetY);
+
+	if (lookForCheck(chessBoard, player))
+		isCheck = true;
+
+	revertMovePiece(chessBoard, pieceX, pieceY, targetX, targetY, deletedPiece, player);
+
+	return (isCheck);
+}
+
+void	drawPossibleMoves(Data &data, ChessPiece *piece, int pieceX, int pieceY, int size)
+{
+	if (piece->getOwner() != data.turn)
+		return ;
+	for (int y = 0; y < 8; ++y)
+	{
+		for (int x = 0; x < 8; ++x)
+		{
+			if ((!data.chessBoard.square[y][x].piece || data.chessBoard.square[y][x].piece->getOwner() != piece->getOwner())
+				&& isMovePossible(data.chessBoard, pieceX, pieceY, x - pieceX, y - pieceY, false)
+				&& !possibleMoveCheck(data.chessBoard, pieceX, pieceY, x, y))
+			{
+				raylib::Color circCol;
+				if (y % 2 == 0)
+				{
+					if (x % 2 == 0)
+						circCol = data.secondaryColor;
+					else
+						circCol = data.primaryColor;
+				}
+				else
+				{
+					if (x % 2 == 0)
+						circCol = data.primaryColor;
+					else
+						circCol = data.secondaryColor;
+				}
+				if (!data.chessBoard.square[y][x].piece)
+					DrawCircle(size * x + size / 2, size * y + size / 2, size / 6, circCol);
+				else
+				{
+					DrawCircle(size * x + size / 2, size * y + size / 2, size / 2.2, circCol);
+					if (data.lastMove[0] == &data.chessBoard.square[y][x] || data.lastMove[1] == &data.chessBoard.square[y][x])
+					{
+						raylib::Color lastMoveCol(GRAY);
+						DrawCircle(size * x + size / 2, size * y + size / 2, size / 2.7, lastMoveCol);
+					}
+					else if (circCol == data.primaryColor)
+						DrawCircle(size * x + size / 2, size * y + size / 2, size / 2.7, data.secondaryColor);
+					else if (circCol == data.secondaryColor)
+						DrawCircle(size * x + size / 2, size * y + size / 2, size / 2.7, data.primaryColor);
+				}
+			}
+		}
 	}
 }
 
@@ -583,14 +649,14 @@ void	drawBoard(Data &data)
 {
 	int size = SCREEN_WIDTH / 8;
 
-	// Iterating through all possible boardsquares
+	// Iterating through all possible Boards
 	for (int x = 0; x < 8; ++x)
 	{
 		for (int y = 0; y < 8; ++y)
 		{
 			//Checking if King is in check and on the current looked at field. If yes, draw in red. Else draw in primary or secondary color.
-			if ((y == data.kingPosY[WHITE_P] && x == data.kingPosX[WHITE_P] && data.kingCheck[WHITE_P])
-				|| (y == data.kingPosY[BLACK_P] && x == data.kingPosX[BLACK_P] && data.kingCheck[BLACK_P]))
+			if ((y == data.chessBoard.kingPosY[WHITE_P] && x == data.chessBoard.kingPosX[WHITE_P] && data.chessBoard.kingCheck[WHITE_P])
+				|| (y == data.chessBoard.kingPosY[BLACK_P] && x == data.chessBoard.kingPosX[BLACK_P] && data.chessBoard.kingCheck[BLACK_P]))
 					DrawRectangle(size * x, size * y, size, size, RED);
 			else if (y % 2 == 0)
 			{
@@ -607,13 +673,99 @@ void	drawBoard(Data &data)
 					DrawRectangle(size * x, size * y, size, size, data.primaryColor);
 			}
 			// If the current square's address matches with one where the last move was made paint gray square over it.
-			if (&data.square[y][x] == data.lastMove[0] || &data.square[y][x] == data.lastMove[1])
+			if (&data.chessBoard.square[y][x] == data.lastMove[0] || &data.chessBoard.square[y][x] == data.lastMove[1])
 			{
-				raylib::Color lastMoveCol(GRAY);
+				raylib::Color lastMoveCol(ORANGE);
 				lastMoveCol.a = 200;
 				DrawRectangle(size * x, size * y, size, size, lastMoveCol);
 			}
 		}
+	}
+	for (int y = 0; y < 8; ++y)
+	{
+		for (int x = 0; x < 8; ++x)
+		{
+			if (data.grabbedPiece && data.grabbedPiecePosX == x && data.grabbedPiecePosY == y)
+			{
+				raylib::Color grabbedPieceCol(YELLOW);
+				grabbedPieceCol.a = 150;
+				DrawRectangle(size * x, size * y, size, size, grabbedPieceCol);
+				drawPossibleMoves(data, data.chessBoard.square[y][x].piece, x, y, size);
+			}
+		}
+	}
+	int x = 0;
+	for (int y = 0; y < 8; ++y)
+	{
+		std::string squareNbrY = std::to_string(x + 1);
+		char c = y + '0' + 17;
+		std::string squareNbrX;
+		squareNbrX += c;
+		int	indent = size - size / 6;
+		if (x % 2 == 0)
+		{
+			// Bottom Numbers
+			DrawText(squareNbrX.c_str(), size * x + size / 20 + indent, size * 7 + size / 20 + indent, size / 10, data.primaryColor);
+			// Left Numbers
+			DrawText(squareNbrY.c_str(), size * 0 + size / 20, size * y + size / 20, size / 10, data.secondaryColor);
+		}
+		else
+		{
+			// Bottom Numbers
+			DrawText(squareNbrX.c_str(), size * x + size / 20 + indent, size * 7 + size / 20 + indent, size / 10, data.secondaryColor);
+			// Left Numbers
+			DrawText(squareNbrY.c_str(), size * 0 + size / 20, size * y + size / 20, size / 10, data.primaryColor);
+		}
+		++x;
+	}
+}
+
+void	drawDebugInfo(Data &data)
+{
+	int size = SCREEN_WIDTH / 8;
+
+	for (int y = 0; y < 8; ++y)
+	{
+		for (int x = 0; x < 8; ++x)
+		{
+			if (data.chessBoard.square[y][x].debug)
+			{
+				std::string text = "Debug on";
+				int xOffset = size * x + size / 2 - MeasureText(text.c_str(), size / 10) / 2;
+				int yOffset = size * y + (size / 10 * 0);
+				DrawText(text.c_str(), xOffset, yOffset, size / 10, PINK);
+				text = "HasMoved: ";
+				if (data.chessBoard.square[y][x].piece)
+				{
+					if (data.chessBoard.square[y][x].piece->getHasMoved())
+						text += "true";
+					else
+						text += "false";
+				}
+				else
+					text += "?";
+				xOffset = size * x + size / 2 - MeasureText(text.c_str(), size / 10) / 2;
+				yOffset = size * y + (size / 10 * 2);
+				DrawText(text.c_str(), xOffset, yOffset, size / 10, PINK);
+			}
+		}
+	}
+}
+
+void	turnDebugOn(Data &data)
+{
+	if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+	{
+		int size = SCREEN_WIDTH / 8;
+		int x = GetMouseX();
+		int y = GetMouseY();
+
+		x /= size;
+		y /= size;
+		if (data.chessBoard.square[y][x].debug == true)
+			data.chessBoard.square[y][x].debug = false;
+		else
+			data.chessBoard.square[y][x].debug = true;
 	}
 }
 
@@ -629,13 +781,21 @@ int	main()
 	{
 		BeginDrawing();
 		// ACTIONS
+		turnDebugOn(data);
 		grabPiece(data);
-		placePiece(data);
-		moveThroughHistory(data);
+		if (data.turn == WHITE_P)
+			placePiece(data, WHITE_P);
+		// 	moveAI(data, data.chessBoard, WHITE_P);
+		if (data.turn == BLACK_P)
+			// placePiece(data, BLACK_P);
+			moveAI(data, data.chessBoard, BLACK_P);
+		// std::cout << calculateBoard(data, data.chessBoard.square, WHITE_P) << "\n";
+		// moveThroughHistory(data);
 		// START DRAWING
 		ClearBackground(RAYWHITE);
 		drawBoard(data);
 		drawAllPieces(data);
+		drawDebugInfo(data);
 		// END DRAWING
 		EndDrawing();
 	}
