@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/22 12:50:42 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/22 13:59:59 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,12 +186,13 @@ ChessPiece	*movePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, in
 
 void	revertMovePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY, ChessPiece *deletedPiece, int player)
 {
+	int castledSave = -1;
 	if (chessBoard.castled[player] == chessBoard.moveTurn  && targetX == 7)
 	{
-		std::cout << "SHORT CASTLE REVERSED " << chessBoard.castled[player] << " = " << chessBoard.moveTurn << std::endl;
 		chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][6].piece;
 		chessBoard.square[targetY][6].piece = nullptr;
 		chessBoard.square[targetY][5].piece = nullptr;
+		castledSave = chessBoard.castled[player];
 		chessBoard.castled[player] = -1;
 	}
 	else if (chessBoard.castled[player] == chessBoard.moveTurn && targetX == 0)
@@ -199,16 +200,12 @@ void	revertMovePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int
 		chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][2].piece;
 		chessBoard.square[targetY][2].piece = nullptr;
 		chessBoard.square[targetY][3].piece = nullptr;
+		castledSave = chessBoard.castled[player];
 		chessBoard.castled[player] = -1;
-		std::cout << "LONG CASTLE REVERSED" << std::endl;
 	}
 	else
 		chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][targetX].piece;
 	chessBoard.square[targetY][targetX].piece = deletedPiece;
-
-	// std::cout << pieceX << pieceY << " " << targetX << targetY << "\n";
-	if (!chessBoard.square[pieceY][pieceX].piece)
-		std::cout << "NULL\n";
 
 	if (chessBoard.square[pieceY][pieceX].piece->getPromotedPawn() == true)
 	{
@@ -226,7 +223,7 @@ void	revertMovePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int
 	{
 		chessBoard.square[pieceY][pieceX].piece->setHasMovedTurn(-1);
 		chessBoard.square[pieceY][pieceX].piece->setHasMoved(false);
-		if (chessBoard.castled[player] == chessBoard.moveTurn && deletedPiece)
+		if (castledSave == chessBoard.moveTurn && deletedPiece)
 		{
 			deletedPiece->setHasMoved(false);
 			deletedPiece->setHasMovedTurn(-1);
