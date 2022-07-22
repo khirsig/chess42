@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/21 14:22:29 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/22 12:21:06 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,14 +73,14 @@ float	calculateBoard(Board &chessBoard, int player, float factor)
 						playerPieceValue += chessBoard.square[y][x].piece->getValue();
 						playerSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, getOppositeSquare(x), getOppositeSquare(y), chessBoard.endgame);
 						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
-							playerPieceValue -= 50;
+							playerSquareValue -= 50;
 					}
 					else
 					{
 						opponentPieceValue += chessBoard.square[y][x].piece->getValue();
 						opponentSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y, chessBoard.endgame);
 						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
-							playerPieceValue -= 50;
+							opponentSquareValue -= 50;
 					}
 				}
 				else
@@ -90,30 +90,46 @@ float	calculateBoard(Board &chessBoard, int player, float factor)
 						playerPieceValue += chessBoard.square[y][x].piece->getValue();
 						playerSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y, chessBoard.endgame);
 						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
-							playerPieceValue -= 50;
+							playerSquareValue -= 50;
 					}
 					else
 					{
 						opponentPieceValue += chessBoard.square[y][x].piece->getValue();
 						opponentSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, getOppositeSquare(x), getOppositeSquare(y), chessBoard.endgame);
 						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
-							playerPieceValue -= 50;
+							opponentSquareValue -= 50;
 					}
 				}
 			}
 		}
 	}
-	// if (chessBoard.endgame == false && playerPieceValue < endGameThreshold && opponentPieceValue < endGameThreshold)
+	// if (player == WHITE_P)
 	// {
-	// 	chessBoard.endgame = true;
-	// 	std::cout << "ENDGAME ACTIVATED\n";
+	// 	if (chessBoard.castled[WHITE_P] == -1)
+	// 		playerSquareValue -= 60;
+	// 	if (chessBoard.castled[BLACK_P] == -1)
+	// 		opponentSquareValue -= 60;
 	// }
+	// else
+	// {
+	// 	if (chessBoard.castled[BLACK_P] == -1)
+	// 		playerSquareValue -= 60;
+	// 	if (chessBoard.castled[WHITE_P] == -1)
+	// 		opponentSquareValue -= 60;
+	// }
+	if (chessBoard.endgame == false && playerPieceValue < endGameThreshold && opponentPieceValue < endGameThreshold)
+	{
+		chessBoard.endgame = true;
+		std::cout << "ENDGAME ACTIVATED\n";
+	}
 	float boardValue = (playerPieceValue + playerSquareValue) - (opponentPieceValue + opponentSquareValue);
 	return (boardValue);
 }
 
 ChessPiece	*movePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY)
 {
+	chessBoard.moveTurn++;
+
 	ChessPiece *deletedPiece = chessBoard.square[targetY][targetX].piece;
 	chessBoard.square[targetY][targetX].piece = chessBoard.square[pieceY][pieceX].piece;
 	chessBoard.square[pieceY][pieceX].piece = nullptr;
@@ -126,29 +142,70 @@ ChessPiece	*movePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, in
 		chessBoard.square[targetY][targetX].piece->promotePawn();
 	}
 
-	if (chessBoard.square[targetY][targetX].piece->getType() == KING)
-	{
-		chessBoard.kingPosX[pieceOwner] = targetX;
-		chessBoard.kingPosY[pieceOwner] = targetY;
-	}
-
-	if (!chessBoard.square[targetY][targetX].piece->getHasMoved())
+	bool pieceHasMoved = chessBoard.square[targetY][targetX].piece->getHasMoved();
+;
+	if (!pieceHasMoved)
 	{
 		chessBoard.square[targetY][targetX].piece->setHasMoved(true);
-		chessBoard.square[targetY][targetX].piece->setFirstMoveLast(true);
+		chessBoard.square[targetY][targetX].piece->setHasMovedTurn(chessBoard.moveTurn);
 	}
-	else if (chessBoard.square[targetY][targetX].piece->getFirstMoveLast())
-		chessBoard.square[targetY][targetX].piece->setFirstMoveLast(false);
+
+	if (chessBoard.square[targetY][targetX].piece->getType() == KING)
+	{
+		if (targetX == 7 && deletedPiece && deletedPiece->getType() == ROOK
+			&& deletedPiece->getHasMoved() == false
+			&& pieceHasMoved == false)
+		{
+			chessBoard.square[pieceY][pieceX + 2].piece = chessBoard.square[targetY][targetX].piece;
+			chessBoard.square[targetY][targetX].piece = nullptr;
+			chessBoard.square[pieceY][pieceX + 1].piece = deletedPiece;
+			chessBoard.kingPosX[pieceOwner] = pieceX + 2;
+			chessBoard.castled[pieceOwner] = chessBoard.moveTurn;
+			chessBoard.square[pieceY][pieceX + 1].piece->setHasMoved(true);
+			chessBoard.square[pieceY][pieceX + 1].piece->setHasMovedTurn(chessBoard.moveTurn);
+		}
+		else if (targetX == 0 && deletedPiece && deletedPiece->getType() == ROOK
+			&& deletedPiece->getHasMoved() == false
+			&& pieceHasMoved == false)
+		{
+			chessBoard.square[pieceY][pieceX - 2].piece = chessBoard.square[targetY][targetX].piece;
+			chessBoard.square[targetY][targetX].piece = nullptr;
+			chessBoard.square[pieceY][pieceX - 1].piece = deletedPiece;
+			chessBoard.kingPosX[pieceOwner] = pieceX - 2;
+			chessBoard.castled[pieceOwner] = chessBoard.moveTurn;
+			chessBoard.square[pieceY][pieceX - 1].piece->setHasMoved(true);
+			chessBoard.square[pieceY][pieceX - 1].piece->setHasMovedTurn(chessBoard.moveTurn);
+		}
+		else
+			chessBoard.kingPosX[pieceOwner] = targetX;
+		chessBoard.kingPosY[pieceOwner] = targetY;
+	}
 
 	return (deletedPiece);
 }
 
-void	revertMovePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY, ChessPiece *deletedPiece)
+void	revertMovePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY, ChessPiece *deletedPiece, int player)
 {
-	chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][targetX].piece;
+	if (chessBoard.castled[player] == chessBoard.moveTurn  && targetX == 7)
+	{
+		std::cout << "SHORT CASTLE REVERSED " << chessBoard.castled[player] << " = " << chessBoard.moveTurn << std::endl;
+		chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][6].piece;
+		chessBoard.castled[player] = -1;
+	}
+	else if (chessBoard.castled[player] == chessBoard.moveTurn && targetX == 0)
+	{
+		chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][2].piece;
+		chessBoard.castled[player] = -1;
+		std::cout << "LONG CASTLE REVERSED" << std::endl;
+	}
+	else
+		chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][targetX].piece;
 	chessBoard.square[targetY][targetX].piece = deletedPiece;
 
-	int pieceOwner = chessBoard.square[pieceY][pieceX].piece->getOwner();
+	std::cout << pieceX << pieceY << " " << targetX << targetY << "\n";
+	if (!chessBoard.square[pieceY][pieceX].piece)
+		std::cout << "NULL\n";
+
 	if (chessBoard.square[pieceY][pieceX].piece->getPromotedPawn() == true)
 	{
 		chessBoard.square[pieceY][pieceX].piece->setType(PAWN);
@@ -157,15 +214,21 @@ void	revertMovePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int
 
 	if (chessBoard.square[pieceY][pieceX].piece->getType() == KING)
 	{
-		chessBoard.kingPosX[pieceOwner] = pieceX;
-		chessBoard.kingPosY[pieceOwner] = pieceY;
+		chessBoard.kingPosX[player] = pieceX;
+		chessBoard.kingPosY[player] = pieceY;
 	}
 
-	if (chessBoard.square[pieceY][pieceX].piece->getFirstMoveLast())
+	if (chessBoard.square[pieceY][pieceX].piece->getHasMovedTurn() == chessBoard.moveTurn)
 	{
-		chessBoard.square[pieceY][pieceX].piece->setFirstMoveLast(false);
+		chessBoard.square[pieceY][pieceX].piece->setHasMovedTurn(-1);
 		chessBoard.square[pieceY][pieceX].piece->setHasMoved(false);
+		if (chessBoard.castled[player] == chessBoard.moveTurn && deletedPiece)
+		{
+			deletedPiece->setHasMoved(false);
+			deletedPiece->setHasMovedTurn(-1);
+		}
 	}
+	chessBoard.moveTurn--;
 }
 
 float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int currentDepth, int totalDepth, float alpha, float beta)
@@ -177,7 +240,6 @@ float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int 
 	else
 		value = 10000;
 
-	// std::cout << currentDepth << "/" << totalDepth << std::endl;
 	for (int pieceY = 0; pieceY < 8; ++pieceY)
 	{
 		for (int pieceX = 0; pieceX < 8; ++pieceX)
@@ -188,10 +250,8 @@ float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int 
 				{
 					for (int targetX = 0; targetX < 8; ++targetX)
 					{
-						if ((!chessBoard.square[targetY][targetX].piece || (chessBoard.square[targetY][targetX].piece
-							&& chessBoard.square[targetY][targetX].piece->getOwner() != movingPlayer))
-							&& isMovePossible(chessBoard, pieceX, pieceY, targetX - pieceX, targetY - pieceY, false)
-							&& !possibleMoveCheck(chessBoard, pieceX, pieceY, targetX, targetY))
+						if (isMovePossible(chessBoard, pieceX, pieceY, targetX - pieceX, targetY - pieceY, false))
+							// && !possibleMoveCheck(chessBoard, pieceX, pieceY, targetX, targetY))
 						{
 							if (currentDepth < totalDepth)
 							{
@@ -199,12 +259,12 @@ float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int 
 								if (totalDepth == currentDepth + 1)
 								{
 									value = calculateBoard(chessBoard, calcPlayer, 100);
-									revertMovePiece(chessBoard, pieceX, pieceY, targetX, targetY, deletedPiece);
+									revertMovePiece(chessBoard, pieceX, pieceY, targetX, targetY, deletedPiece, movingPlayer);
 									return (value);
 								}
 								float ret = depthCalculation(chessBoard, (movingPlayer  + 1) % 2, calcPlayer, currentDepth + 1, totalDepth, alpha, beta);
 								chessBoard.iterations++;
-								revertMovePiece(chessBoard, pieceX, pieceY, targetX, targetY, deletedPiece);
+								revertMovePiece(chessBoard, pieceX, pieceY, targetX, targetY, deletedPiece, movingPlayer);
 								if ((movingPlayer == calcPlayer && ret > value) || (movingPlayer != calcPlayer && ret < value))
 								{
 									value = ret;
@@ -240,24 +300,21 @@ float	getBestMove(Board &chessBoard, int pieceX, int pieceY, int player, std::ve
 	{
 		for (int x = 0; x < 8; ++x)
 		{
-			if ((!chessBoard.square[y][x].piece || chessBoard.square[y][x].piece->getOwner() != player)
-				&& isMovePossible(chessBoard, pieceX, pieceY, x - pieceX, y - pieceY, false)
-				&& !possibleMoveCheck(chessBoard, pieceX, pieceY, x, y))
+			if (isMovePossible(chessBoard, pieceX, pieceY, x - pieceX, y - pieceY, false))
+				// && !possibleMoveCheck(chessBoard, pieceX, pieceY, x, y))
 			{
 				ChessPiece *deletedPiece = movePiece(chessBoard, pieceX, pieceY, x, y);
 
-				// std::cout << (char)(pieceX + '0' + 17) << pieceY + 1 << " -> " << (char)(x + '0' + 17) << y + 1;
 				chessBoard.iterations++;
 				float currentMove;
 				if (player == WHITE_P)
 					currentMove = depthCalculation(chessBoard, otherPlayer, player, 1, DEPTH_WHITE, -INFINITY, INFINITY);
 				else
 					currentMove = depthCalculation(chessBoard, otherPlayer, player, 1, DEPTH_BLACK, -INFINITY, INFINITY);
-				// std::cout << " = " << currentMove << std::endl;
 
 				allMoves.push_back(Move(pieceX, pieceY, x, y, currentMove));
 
-				revertMovePiece(chessBoard, pieceX, pieceY, x, y, deletedPiece);
+				revertMovePiece(chessBoard, pieceX, pieceY, x, y, deletedPiece, player);
 			}
 		}
 	}
@@ -294,24 +351,22 @@ void	moveAI(Data &data, Board &chessBoard, int player)
 			allMoves.clear();
 
 			ChessPiece *deletedPiece = movePiece(chessBoard, bestMove.getStartX(), bestMove.getStartY(), bestMove.getTargetX(), bestMove.getTargetY());
-			if (data.moveNbr < data.history.size() - 1)
-			{
-				int	elemToDelete = (int) data.history.size() - 1 - data.moveNbr;
-				for (int i = 0; i < elemToDelete; ++i)
-					data.history.pop_back();
-			}
-			History	history;
-			history.movedPiece = data.grabbedPiece;
-			if (deletedPiece != nullptr)
-				history.removedPiece = deletedPiece;
-			history.fromX = bestMove.getStartX();
-			history.fromY = bestMove.getStartY();
-			history.toX = bestMove.getTargetX();
-			history.toY = bestMove.getTargetY();
-			data.history.push_back(history);
+
 			data.moveNbr++;
-			data.lastMove[0] = &chessBoard.square[bestMove.getStartY()][bestMove.getStartX()];
-			data.lastMove[1] = &chessBoard.square[bestMove.getTargetY()][bestMove.getTargetX()];
+			if (chessBoard.castled[player] != chessBoard.moveTurn)
+			{
+				data.lastMove[0] = &chessBoard.square[bestMove.getStartY()][bestMove.getStartX()];
+				data.lastMove[1] = &chessBoard.square[bestMove.getTargetY()][bestMove.getTargetX()];
+			}
+			else
+			{
+				if (chessBoard.kingPosX[player] == 6)
+					data.lastMove[0] = &chessBoard.square[chessBoard.kingPosY[player]][chessBoard.kingPosX[player] - 1];
+				else
+					data.lastMove[0] = &data.chessBoard.square[chessBoard.kingPosY[player]][chessBoard.kingPosX[player] + 1];
+				data.lastMove[1] = &data.chessBoard.square[chessBoard.kingPosY[player]][chessBoard.kingPosX[player]];
+			}
+
 			toggleCheckBothPlayers(chessBoard);
 			lookForCheckmate(chessBoard);
 			if (player == BLACK_P)
