@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/22 12:21:06 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/22 12:50:42 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,20 +103,20 @@ float	calculateBoard(Board &chessBoard, int player, float factor)
 			}
 		}
 	}
-	// if (player == WHITE_P)
-	// {
-	// 	if (chessBoard.castled[WHITE_P] == -1)
-	// 		playerSquareValue -= 60;
-	// 	if (chessBoard.castled[BLACK_P] == -1)
-	// 		opponentSquareValue -= 60;
-	// }
-	// else
-	// {
-	// 	if (chessBoard.castled[BLACK_P] == -1)
-	// 		playerSquareValue -= 60;
-	// 	if (chessBoard.castled[WHITE_P] == -1)
-	// 		opponentSquareValue -= 60;
-	// }
+	if (player == WHITE_P)
+	{
+		if (chessBoard.castled[WHITE_P] == -1)
+			playerSquareValue -= 60;
+		if (chessBoard.castled[BLACK_P] == -1)
+			opponentSquareValue -= 60;
+	}
+	else
+	{
+		if (chessBoard.castled[BLACK_P] == -1)
+			playerSquareValue -= 60;
+		if (chessBoard.castled[WHITE_P] == -1)
+			opponentSquareValue -= 60;
+	}
 	if (chessBoard.endgame == false && playerPieceValue < endGameThreshold && opponentPieceValue < endGameThreshold)
 	{
 		chessBoard.endgame = true;
@@ -190,11 +190,15 @@ void	revertMovePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int
 	{
 		std::cout << "SHORT CASTLE REVERSED " << chessBoard.castled[player] << " = " << chessBoard.moveTurn << std::endl;
 		chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][6].piece;
+		chessBoard.square[targetY][6].piece = nullptr;
+		chessBoard.square[targetY][5].piece = nullptr;
 		chessBoard.castled[player] = -1;
 	}
 	else if (chessBoard.castled[player] == chessBoard.moveTurn && targetX == 0)
 	{
 		chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][2].piece;
+		chessBoard.square[targetY][2].piece = nullptr;
+		chessBoard.square[targetY][3].piece = nullptr;
 		chessBoard.castled[player] = -1;
 		std::cout << "LONG CASTLE REVERSED" << std::endl;
 	}
@@ -202,7 +206,7 @@ void	revertMovePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int
 		chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][targetX].piece;
 	chessBoard.square[targetY][targetX].piece = deletedPiece;
 
-	std::cout << pieceX << pieceY << " " << targetX << targetY << "\n";
+	// std::cout << pieceX << pieceY << " " << targetX << targetY << "\n";
 	if (!chessBoard.square[pieceY][pieceX].piece)
 		std::cout << "NULL\n";
 

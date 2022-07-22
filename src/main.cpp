@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/22 12:23:23 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/22 12:36:50 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int	kingMove(Board &chessBoard, int pieceX, int pieceY, int xAdd, int yAdd)
 		&& !chessBoard.square[pieceY][pieceX + xAdd].piece->getHasMoved()
 		&& !chessBoard.square[pieceY][pieceX].piece->getHasMoved())
 	{
-		std::cout << "ATTEMPTING CASTLE\n";
+		// std::cout << "ATTEMPTING CASTLE\n";
 		int incr;
 		if (xAdd > 0)
 			incr = 1;
@@ -787,8 +787,8 @@ int	main()
 			placePiece(data, WHITE_P);
 		// 	moveAI(data, data.chessBoard, WHITE_P);
 		if (data.turn == BLACK_P)
-			placePiece(data, BLACK_P);
-			// moveAI(data, data.chessBoard, BLACK_P);
+			// placePiece(data, BLACK_P);
+			moveAI(data, data.chessBoard, BLACK_P);
 		// std::cout << calculateBoard(data, data.chessBoard.square, WHITE_P) << "\n";
 		// moveThroughHistory(data);
 		// START DRAWING
