@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/23 18:15:47 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/23 21:24:37 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -297,7 +297,7 @@ void	revertMovePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int
 	chessBoard.moveTurn--;
 }
 
-float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int currentDepth, int totalDepth, float alpha, float beta)
+float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int currentDepth, int totalDepth, float alpha, float beta, bool relative)
 {
 	float value;
 
@@ -324,11 +324,11 @@ float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int 
 								ChessPiece *deletedPiece = movePiece(chessBoard, pieceX, pieceY, targetX, targetY);
 								if (totalDepth == currentDepth + 1)
 								{
-									value = calculateBoard(chessBoard, calcPlayer,true);
+									value = calculateBoard(chessBoard, calcPlayer, relative);
 									revertMovePiece(chessBoard, pieceX, pieceY, targetX, targetY, deletedPiece, movingPlayer);
 									return (value);
 								}
-								float ret = depthCalculation(chessBoard, (movingPlayer  + 1) % 2, calcPlayer, currentDepth + 1, totalDepth, alpha, beta);
+								float ret = depthCalculation(chessBoard, (movingPlayer  + 1) % 2, calcPlayer, currentDepth + 1, totalDepth, alpha, beta, relative);
 								chessBoard.iterations++;
 								revertMovePiece(chessBoard, pieceX, pieceY, targetX, targetY, deletedPiece, movingPlayer);
 								if ((movingPlayer == calcPlayer && ret > value) || (movingPlayer != calcPlayer && ret < value))
@@ -351,7 +351,7 @@ float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int 
 	return (value);
 }
 
-float	getBestMove(Board *chessBoard, int pieceX, int pieceY, int player, std::vector<Move> &allMoves)
+float	getBestMove(Board *chessBoard, int pieceX, int pieceY, int player, std::vector<Move> &allMoves, int depth, bool relative)
 {
 	float	bestMove = -10000;
 	int		savedX = -1;
@@ -374,9 +374,9 @@ float	getBestMove(Board *chessBoard, int pieceX, int pieceY, int player, std::ve
 				chessBoard->iterations++;
 				float currentMove;
 				if (player == WHITE_P)
-					currentMove = depthCalculation(*chessBoard, otherPlayer, player, 1, DEPTH_WHITE, -INFINITY, INFINITY);
+					currentMove = depthCalculation(*chessBoard, otherPlayer, player, 1, depth, -INFINITY, INFINITY, relative);
 				else
-					currentMove = depthCalculation(*chessBoard, otherPlayer, player, 1, DEPTH_BLACK, -INFINITY, INFINITY);
+					currentMove = depthCalculation(*chessBoard, otherPlayer, player, 1, depth, -INFINITY, INFINITY, relative);
 
 				aiMutex.lock();
 				allMoves.push_back(Move(pieceX, pieceY, x, y, currentMove));
@@ -390,7 +390,7 @@ float	getBestMove(Board *chessBoard, int pieceX, int pieceY, int player, std::ve
 	return (bestMove);
 }
 
-Move	lookForMoves(Board *chessBoard, int player, int turn)
+Move	lookForMoves(Board *chessBoard, int player, int depth, bool relative)
 {
 	chessBoard->iterations = 0;
 	std::vector<Move> allMoves;
@@ -403,12 +403,13 @@ Move	lookForMoves(Board *chessBoard, int player, int turn)
 			if (chessBoard->square[y][x].piece && chessBoard->square[y][x].piece->getOwner() == player)
 			{
 				Board *cpy = copyBoard(*chessBoard);
-				threads.push_back(std::thread(getBestMove, cpy, x, y, player, std::ref(allMoves)));
+				threads.push_back(std::thread(getBestMove, cpy, x, y, player, std::ref(allMoves), depth, relative));
 			}
 		}
 	}
 	for (auto& th : threads)
 		th.join();
+	exitBarDepth = false;
 	std::sort(allMoves.begin(), allMoves.end());
 	Move bestMove(allMoves[0]);
 	allMoves.clear();
@@ -422,7 +423,12 @@ void	getBestAIMove(Data &data, Board &chessBoard, int player)
 	data.aiThinking = true;
 	Board	*cpy = copyBoard(chessBoard);
 
-	data.aiThreadMove = std::async(lookForMoves, cpy, player, data.turn);
+	int depth;
+	if (player == WHITE_P)
+		depth = DEPTH_WHITE;
+	else
+		depth = DEPTH_BLACK;
+	data.aiThreadMove = std::async(lookForMoves, cpy, player, depth, true);
 }
 
 void	executeAIMove(Data &data, Board &chessBoard, int player)
@@ -453,7 +459,8 @@ void	executeAIMove(Data &data, Board &chessBoard, int player)
 			data.turn = WHITE_P;
 		else
 			data.turn = BLACK_P;
-		runEvalBar(data, chessBoard);
+		// runEvalBar(data, chessBoard);
+		data.currentBarDepth = 3;
 		data.aiThinking = false;
 		data.waitAI = 0;
 	}

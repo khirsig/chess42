@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/23 18:09:22 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/23 21:29:28 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@
 # define KING_SHORT_CASTLE 1
 # define KING_LONG_CASTLE 2
 
+static bool exitBarDepth = false;
+
 struct Data {
 	Board								chessBoard;
 	raylib::Color						primaryColor = RAYWHITE;
@@ -52,10 +54,13 @@ struct Data {
 	int									depth;
 	bool								aiThinking = false;
 	std::future<Move>					aiThreadMove;
+	std::future<Move>					barThreadMove;
 	std::future<float>					evaluation;
-	float								barPower = 0;
 	Board								*barBoard = nullptr;
-	bool								barThinking = false;
+	int									currentBarDepth = 3;
+	int									nextBarDepth = 4;
+	float								barEval;
+	int									barTurn = WHITE_P;
 };
 
 bool	isMovePossible(Board &chessBoard, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck);
@@ -70,6 +75,7 @@ Board	*copyBoard(Board &chessBoard);
 
 void	getBestAIMove(Data &data, Board &chessBoard, int player);
 void	executeAIMove(Data &data, Board &chessBoard, int player);
+Move	lookForMoves(Board *chessBoard, int player, int depth, bool relative);
 
 void	drawEvalBar(Data &data, Board &chessBoard);
 void	runEvalBar(Data &data, Board &chessBoard);
