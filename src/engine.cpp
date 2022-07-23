@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/23 04:27:46 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/23 04:45:25 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,32 @@ bool	operator<(const Move &first, const Move &other)
 bool	operator>(const Move &first, const Move &other)
 {
 	return (first.getEvalPoints() < other.getEvalPoints());
+}
+
+Board	*copyBoard(Board &chessBoard)
+{
+	Board *copyBoard = new Board();
+	for (int y = 0; y < 8; ++y)
+		for (int x = 0; x < 8; ++x)
+		{
+			if (chessBoard.square[y][x].piece)
+				copyBoard->square[y][x].piece = new ChessPiece(*(chessBoard.square[y][x].piece));
+			else
+				copyBoard->square[y][x].piece = nullptr;
+		}
+	copyBoard->endgame =  chessBoard.endgame;
+	copyBoard->checkmate = chessBoard.checkmate;
+	copyBoard->iterations = chessBoard.iterations;
+	copyBoard->moveTurn = chessBoard.moveTurn;
+	copyBoard->stalemate = chessBoard.stalemate;
+	for (int i = 0; i < 2; ++i)
+	{
+		copyBoard->castled[i] = chessBoard.castled[i];
+		copyBoard->kingCheck[i] = chessBoard.kingCheck[i];
+		copyBoard->kingPosX[i] = chessBoard.kingPosX[i];
+		copyBoard->kingPosY[i] = chessBoard.kingPosY[i];
+	}
+	return (copyBoard);
 }
 
 static float	getOppositeSquare(int i)
@@ -322,7 +348,7 @@ float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int 
 	return (value);
 }
 
-float	getBestMove(Board &chessBoard, int pieceX, int pieceY, int player, std::vector<Move> &allMoves)
+float	getBestMove(Board *chessBoard, int pieceX, int pieceY, int player, std::vector<Move> &allMoves)
 {
 	float	bestMove = -10000;
 	int		savedX = -1;
@@ -337,76 +363,63 @@ float	getBestMove(Board &chessBoard, int pieceX, int pieceY, int player, std::ve
 	{
 		for (int x = 0; x < 8; ++x)
 		{
-			if (isMovePossible(chessBoard, pieceX, pieceY, x - pieceX, y - pieceY, false))
+			if (isMovePossible(*chessBoard, pieceX, pieceY, x - pieceX, y - pieceY, false))
 				// && !possibleMoveCheck(chessBoard, pieceX, pieceY, x, y))
 			{
-				ChessPiece *deletedPiece = movePiece(chessBoard, pieceX, pieceY, x, y);
+				ChessPiece *deletedPiece = movePiece(*chessBoard, pieceX, pieceY, x, y);
 
-				chessBoard.iterations++;
+				chessBoard->iterations++;
 				float currentMove;
 				if (player == WHITE_P)
-					currentMove = depthCalculation(chessBoard, otherPlayer, player, 1, DEPTH_WHITE, -INFINITY, INFINITY);
+					currentMove = depthCalculation(*chessBoard, otherPlayer, player, 1, DEPTH_WHITE, -INFINITY, INFINITY);
 				else
-					currentMove = depthCalculation(chessBoard, otherPlayer, player, 1, DEPTH_BLACK, -INFINITY, INFINITY);
+					currentMove = depthCalculation(*chessBoard, otherPlayer, player, 1, DEPTH_BLACK, -INFINITY, INFINITY);
 
+				aiMutex.lock();
 				allMoves.push_back(Move(pieceX, pieceY, x, y, currentMove));
+				aiMutex.unlock();
 
-				revertMovePiece(chessBoard, pieceX, pieceY, x, y, deletedPiece, player);
+				revertMovePiece(*chessBoard, pieceX, pieceY, x, y, deletedPiece, player);
 			}
 		}
 	}
+	delete chessBoard;
 	return (bestMove);
 }
 
-Move	lookForMoves(Board &chessBoard, int player, int turn)
+Move	lookForMoves(Board *chessBoard, int player, int turn)
 {
-	chessBoard.iterations = 0;
+	chessBoard->iterations = 0;
 	std::vector<Move> allMoves;
+	std::vector<std::thread> threads;
 
 	for (int y = 0; y < 8; ++y)
 	{
 		for (int x = 0; x < 8; ++x)
 		{
-			if (chessBoard.square[y][x].piece && chessBoard.square[y][x].piece->getOwner() == player)
+			if (chessBoard->square[y][x].piece && chessBoard->square[y][x].piece->getOwner() == player)
 			{
-				getBestMove(chessBoard, x, y, player, allMoves);
+				Board *cpy = copyBoard(*chessBoard);
+				threads.push_back(std::thread(getBestMove, cpy, x, y, player, std::ref(allMoves)));
 			}
 		}
 	}
-	std::cout << "ITERATIONS: " << chessBoard.iterations << std::endl;
+	for (auto& th : threads)
+		th.join();
 	std::sort(allMoves.begin(), allMoves.end());
 	Move bestMove(allMoves[0]);
 	allMoves.clear();
 
+	delete chessBoard;
 	return (bestMove);
 }
 
 void	getBestAIMove(Data &data, Board &chessBoard, int player)
 {
 	data.aiThinking = true;
+	Board	*cpy = copyBoard(chessBoard);
 
-	Board *copyBoard = new Board();
-	for (int y = 0; y < 8; ++y)
-		for (int x = 0; x < 8; ++x)
-		{
-			if (chessBoard.square[y][x].piece)
-				copyBoard->square[y][x].piece = new ChessPiece(*(chessBoard.square[y][x].piece));
-			else
-				copyBoard->square[y][x].piece = nullptr;
-		}
-	copyBoard->endgame =  chessBoard.endgame;
-	copyBoard->checkmate = chessBoard.checkmate;
-	copyBoard->iterations = chessBoard.iterations;
-	copyBoard->moveTurn = chessBoard.moveTurn;
-	copyBoard->stalemate = chessBoard.stalemate;
-	for (int i = 0; i < 2; ++i)
-	{
-		copyBoard->castled[i] = chessBoard.castled[i];
-		copyBoard->kingCheck[i] = chessBoard.kingCheck[i];
-		copyBoard->kingPosX[i] = chessBoard.kingPosX[i];
-		copyBoard->kingPosY[i] = chessBoard.kingPosY[i];
-	}
-	data.aiThreadMove = std::async(lookForMoves, std::ref(*copyBoard), player, data.turn);
+	data.aiThreadMove = std::async(lookForMoves, cpy, player, data.turn);
 }
 
 void	executeAIMove(Data &data, Board &chessBoard, int player)

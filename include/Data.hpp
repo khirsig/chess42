@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/23 04:25:41 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/23 04:30:15 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@
 # include "./engine.hpp"
 
 
-# define SCREEN_WIDTH 1000
-# define SCREEN_HEIGHT 1000
+# define SCREEN_WIDTH 800
+# define SCREEN_HEIGHT 800
 
 # define CHECK 1
 # define MATE 2

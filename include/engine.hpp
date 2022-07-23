@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:20:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/23 04:27:23 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/23 04:46:26 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ static int* egFieldValues[6] =
 
 static int endGameThreshold = 1350;
 
-// static std::mutex mutex;
+static std::mutex aiMutex;
 
 class Move {
 	public:

@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/23 04:13:12 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/23 04:48:03 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -773,7 +773,7 @@ int	main()
 {
 	Data data;
 
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Chess 42");
+	InitWindow(SCREEN_WIDTH * 1.02, SCREEN_HEIGHT, "Chess 42");
 	SetTargetFPS(120);
 	initTex(data);
 	initPieces(data);
@@ -783,8 +783,7 @@ int	main()
 		// ACTIONS
 		turnDebugOn(data);
 		grabPiece(data);
-		if (data.turn == WHITE_P)
-			placePiece(data, WHITE_P);
+		placePiece(data, WHITE_P);
 		// 	moveAI(data, data.chessBoard, WHITE_P);
 		if (data.turn == BLACK_P && data.chessBoard.checkmate == false)
 		{
