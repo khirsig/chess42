@@ -6,7 +6,7 @@
 #    By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/10 09:02:38 by tjensen           #+#    #+#              #
-#    Updated: 2022/07/08 16:55:39 by khirsig          ###   ########.fr        #
+#    Updated: 2022/07/23 07:12:58 by khirsig          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,6 +21,7 @@ CFLAGS			:= -std=c++0x -g -fsanitize=address
 
 SRCS			:=	main.cpp									\
 					engine.cpp									\
+					evalBar.cpp									\
 
 OS				:= $(shell uname -s)
 NUMPROC			:= 8

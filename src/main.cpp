@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/23 04:48:03 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/23 18:17:16 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -375,6 +375,7 @@ void	placePiece(Data &data, int player)
 					}
 					data.moveNbr++;
 
+					runEvalBar(data, data.chessBoard);
 					int otherPlayer;
 					if (player == WHITE_P)
 						otherPlayer = BLACK_P;
@@ -777,27 +778,28 @@ int	main()
 	SetTargetFPS(120);
 	initTex(data);
 	initPieces(data);
+			runEvalBar(data, data.chessBoard);
 	while (!WindowShouldClose())
 	{
 		BeginDrawing();
+		// CALCULATIONS
+		// if (data.barThinking == false)
 		// ACTIONS
 		turnDebugOn(data);
 		grabPiece(data);
 		placePiece(data, WHITE_P);
-		// 	moveAI(data, data.chessBoard, WHITE_P);
 		if (data.turn == BLACK_P && data.chessBoard.checkmate == false)
 		{
 			if (data.aiThinking == false)
 				getBestAIMove(data, data.chessBoard, BLACK_P);
 			executeAIMove(data, data.chessBoard, BLACK_P);
 		}
-		// std::cout << calculateBoard(data, data.chessBoard.square, WHITE_P) << "\n";
-		// moveThroughHistory(data);
 		// START DRAWING
 		ClearBackground(RAYWHITE);
 		drawBoard(data);
 		drawAllPieces(data);
 		drawDebugInfo(data);
+		drawEvalBar(data, data.chessBoard);
 		// END DRAWING
 		EndDrawing();
 	}

@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/23 04:45:25 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/23 18:15:47 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ static float	getPieceSquareValue(ChessPiece *piece, int x, int y, bool endgame)
 	return (mgFieldValues[piece->getType()][y * x]);
 }
 
-float	calculateBoard(Board &chessBoard, int player, float factor)
+float	calculateBoard(Board &chessBoard, int player, bool relative)
 {
 	float playerPieceValue = 0.0f;
 	float playerSquareValue = 0.0f;
@@ -129,6 +129,9 @@ float	calculateBoard(Board &chessBoard, int player, float factor)
 			}
 		}
 	}
+	if (relative == false)
+		return (((playerPieceValue + playerSquareValue) - (opponentPieceValue + opponentSquareValue)) / 100);
+
 	if (player == WHITE_P)
 	{
 		if (chessBoard.castled[WHITE_P] == -1)
@@ -321,7 +324,7 @@ float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int 
 								ChessPiece *deletedPiece = movePiece(chessBoard, pieceX, pieceY, targetX, targetY);
 								if (totalDepth == currentDepth + 1)
 								{
-									value = calculateBoard(chessBoard, calcPlayer, 100);
+									value = calculateBoard(chessBoard, calcPlayer,true);
 									revertMovePiece(chessBoard, pieceX, pieceY, targetX, targetY, deletedPiece, movingPlayer);
 									return (value);
 								}
@@ -450,6 +453,7 @@ void	executeAIMove(Data &data, Board &chessBoard, int player)
 			data.turn = WHITE_P;
 		else
 			data.turn = BLACK_P;
+		runEvalBar(data, chessBoard);
 		data.aiThinking = false;
 		data.waitAI = 0;
 	}
