@@ -6,15 +6,15 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:20:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/21 14:22:49 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/23 04:27:23 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ENGINE_HPP
 # define ENGINE_HPP
 
-# define DEPTH_WHITE 5
-# define DEPTH_BLACK 5
+# define DEPTH_WHITE 6
+# define DEPTH_BLACK 6
 
 # include <algorithm>
 # include <thread>
@@ -110,20 +110,23 @@ static int* egFieldValues[6] =
 
 static int endGameThreshold = 1350;
 
+// static std::mutex mutex;
+
 class Move {
 	public:
+		Move() { _init = false; }
 		Move(const Move &other)
 			: _startX(other._startX),
 			  _startY(other._startY),
 			  _targetX(other._targetX),
 			  _targetY(other._targetY),
-			  _evaluatedPoints(other._evaluatedPoints) { }
+			  _evaluatedPoints(other._evaluatedPoints) { _init = true; }
 		Move(int sX, int sY, int tX, int tY, float eP)
 			: _startX(sX),
 			  _startY(sY),
 			  _targetX(tX),
 			  _targetY(tY),
-			  _evaluatedPoints(eP) { }
+			  _evaluatedPoints(eP) { _init = true; }
 
 		void	setEvalPoints(float newEval) { _evaluatedPoints = newEval; }
 
@@ -132,7 +135,9 @@ class Move {
 		int		getTargetX() const { return (_targetX); }
 		int		getTargetY() const { return (_targetY); }
 		float	getEvalPoints() const { return (_evaluatedPoints); }
+		float	getInit() const { return (_init); }
 	private:
+		bool _init = true;
 		float	_evaluatedPoints;
 		int	_startX;
 		int	_startY;

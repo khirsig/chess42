@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/22 12:36:50 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/23 04:13:12 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -786,9 +786,12 @@ int	main()
 		if (data.turn == WHITE_P)
 			placePiece(data, WHITE_P);
 		// 	moveAI(data, data.chessBoard, WHITE_P);
-		if (data.turn == BLACK_P)
-			// placePiece(data, BLACK_P);
-			moveAI(data, data.chessBoard, BLACK_P);
+		if (data.turn == BLACK_P && data.chessBoard.checkmate == false)
+		{
+			if (data.aiThinking == false)
+				getBestAIMove(data, data.chessBoard, BLACK_P);
+			executeAIMove(data, data.chessBoard, BLACK_P);
+		}
 		// std::cout << calculateBoard(data, data.chessBoard.square, WHITE_P) << "\n";
 		// moveThroughHistory(data);
 		// START DRAWING
