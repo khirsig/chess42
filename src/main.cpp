@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/23 21:10:12 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/24 14:57:12 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -382,7 +382,7 @@ void	placePiece(Data &data, int player)
 					else
 						otherPlayer = WHITE_P;
 					data.turn = otherPlayer;
-					data.currentBarDepth = 3;
+					data.currentBarDepth = 5;
 				}
 			}
 		}
@@ -775,7 +775,7 @@ int	main()
 {
 	Data data;
 
-	InitWindow(SCREEN_WIDTH * 1.02, SCREEN_HEIGHT, "Chess 42");
+	InitWindow(SCREEN_WIDTH * 1.03, SCREEN_HEIGHT, "Chess 42");
 	SetTargetFPS(120);
 	initTex(data);
 	initPieces(data);

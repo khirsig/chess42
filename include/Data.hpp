@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/23 21:29:28 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/24 14:57:02 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,8 @@ struct Data {
 	std::future<Move>					barThreadMove;
 	std::future<float>					evaluation;
 	Board								*barBoard = nullptr;
-	int									currentBarDepth = 3;
-	int									nextBarDepth = 4;
+	int									currentBarDepth = 5;
+	int									nextBarDepth = 6;
 	float								barEval;
 	int									barTurn = WHITE_P;
 };

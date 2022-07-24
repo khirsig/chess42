@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/24 14:07:32 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/24 14:56:55 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,7 @@ float	calculateBoard(Board &chessBoard, int player, bool relative)
 		}
 	}
 	if (relative == false)
-		return (((playerPieceValue) - (opponentPieceValue)) / 100);
+		return (((playerPieceValue + (playerSquareValue / 10)) - (opponentPieceValue + (opponentSquareValue / 10))) / 100);
 
 	if (player == WHITE_P)
 	{
@@ -460,7 +460,7 @@ void	executeAIMove(Data &data, Board &chessBoard, int player)
 		else
 			data.turn = BLACK_P;
 		// runEvalBar(data, chessBoard);
-		data.currentBarDepth = 3;
+		data.currentBarDepth = 5;
 		data.aiThinking = false;
 		data.waitAI = 0;
 	}
