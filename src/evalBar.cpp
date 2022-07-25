@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/23 05:14:35 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 08:41:24 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 08:50:06 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	runEvalBar(Data &data, Board &chessBoard)
 		data.nextBarDepth = data.currentBarDepth + 1;
 
 	data.barThreadMove = std::async(lookForMoves, data.barBoard, data.turn, data.currentBarDepth, false);
-	// std::cout << "Current Bar Depth: " << data.currentBarDepth << " evaluated for player " << data.turn << "\n";
+	std::cout << "Current Bar Depth: " << data.currentBarDepth << " evaluated for player " << data.turn << "\n";
 	data.currentBarDepth++;
 }
 
@@ -53,8 +53,9 @@ void	drawEvalBar(Data &data, Board &chessBoard)
 	std::stringstream stream;
 	stream << std::fixed << std::setprecision(1) << evalPts;
 	std::string points = stream.str();
+	int textLen = MeasureText(points.c_str(), SCREEN_WIDTH / 80);
 	if (whiteInFront)
-		DrawText(points.c_str(), SCREEN_WIDTH + 5, SCREEN_HEIGHT - SCREEN_HEIGHT / 50, SCREEN_WIDTH / 80, BLACK);
+		DrawText(points.c_str(), SCREEN_WIDTH + ((SCREEN_WIDTH * 1.03 - SCREEN_WIDTH) / 2 - textLen / 2), SCREEN_HEIGHT - SCREEN_HEIGHT / 50, SCREEN_WIDTH / 80, BLACK);
 	else
-		DrawText(points.c_str(), SCREEN_WIDTH + 5, SCREEN_HEIGHT / 50, SCREEN_WIDTH / 80, WHITE);
+		DrawText(points.c_str(), SCREEN_WIDTH + ((SCREEN_WIDTH * 1.03 - SCREEN_WIDTH) / 2 - textLen / 2), SCREEN_HEIGHT / 50, SCREEN_WIDTH / 80, WHITE);
 }
