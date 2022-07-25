@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:20:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 10:26:15 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 16:13:08 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,12 @@
 
 # define DEPTH_WHITE 5
 # define DEPTH_BLACK 5
+
+# define PIECE_VALUE_FACTOR 1.2f
+# define PIECE_SQUARE_FACTOR 1.5f
+# define CASTLE_FACTOR 0.8f
+# define DEVELOPMENT_FACTOR 1.5f
+# define MOBILITY_FACTOR 1.0f
 
 # include <algorithm>
 # include <thread>
@@ -87,6 +93,16 @@ static int pawnFieldValues[64] = {
 	 0,  0,  0, 20, 20,  0,  0,  0,
 	 5, -5,-10,  0,  0,-10, -5,  5,
 	 5, 10, 10,-20,-20, 10, 10,  5,
+	 0,  0,  0,  0,  0,  0,  0,  0
+};
+static int pawnOPFieldValues[64] = {
+	 0,  0,  0,  0,  0,  0,  0,  0,
+	50, 50, 50, 50, 50, 50, 50, 50,
+	10, 10, 20, 35, 35, 20, 10, 10,
+	-20, 5, 10, 35, 35, 10,  5, -20,
+	-20, -5, -5, 30, 30, -5, -5, -20,
+	 5, -5,-10, 10, 10,-10, -5,  5,
+	25, 20, 20,-20,-20, 20, 20, 25,
 	 0,  0,  0,  0,  0,  0,  0,  0
 };
 static int* mgFieldValues[6] =

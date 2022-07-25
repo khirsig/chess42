@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/23 05:14:35 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 08:50:06 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 15:45:02 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void	drawEvalBar(Data &data, Board &chessBoard)
 
 	DrawRectangle(SCREEN_WIDTH, 0, SCREEN_WIDTH * 1.03, endBlack, BLACK);
 	DrawRectangle(SCREEN_WIDTH, endBlack, SCREEN_WIDTH * 1.03, SCREEN_HEIGHT, RAYWHITE);
-	float evalPts = data.barEval;
+	float	evalPts = data.barEval;
 	bool	whiteInFront;
 	if (data.barEval < 0)
 	{

@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 10:56:52 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 16:18:06 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ Board	*copyBoard(Board &chessBoard)
 	return (copyBoard);
 }
 
-static float	getOppositeSquare(int i)
+float	getOppositeSquare(int i)
 {
 	if (i == 0)
 		return (7);
@@ -69,11 +69,11 @@ static float	getOppositeSquare(int i)
 	return (0);
 }
 
-static float	getPieceSquareValue(ChessPiece *piece, int x, int y, bool endgame)
+float	getPieceSquareValue(ChessPiece *piece, int x, int y, bool endgame)
 {
 	if (endgame)
-		return (egFieldValues[piece->getType()][y * x]);
-	return (mgFieldValues[piece->getType()][y * x]);
+		return (egFieldValues[piece->getType()][y * 8 + x]);
+	return (mgFieldValues[piece->getType()][y * 8 + x]);
 }
 
 int	getMobility(Board &chessBoard, int player)
@@ -120,16 +120,16 @@ float	calculateBoard(Board &chessBoard, int player, bool relative)
 					if (pieceOwner == player)
 					{
 						playerPieceValue += chessBoard.square[y][x].piece->getValue();
-						playerSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, getOppositeSquare(x), getOppositeSquare(y), chessBoard.endgame);
+						playerSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, getOppositeSquare(y), chessBoard.endgame);
 						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
-							playerSquareValue -= 50;
+							playerSquareValue -= 50 * DEVELOPMENT_FACTOR;
 					}
 					else
 					{
 						opponentPieceValue += chessBoard.square[y][x].piece->getValue();
 						opponentSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y, chessBoard.endgame);
 						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
-							opponentSquareValue -= 50;
+							opponentSquareValue -= 50 * DEVELOPMENT_FACTOR;
 					}
 				}
 				else
@@ -139,14 +139,14 @@ float	calculateBoard(Board &chessBoard, int player, bool relative)
 						playerPieceValue += chessBoard.square[y][x].piece->getValue();
 						playerSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y, chessBoard.endgame);
 						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
-							playerSquareValue -= 50;
+							playerSquareValue -= 50 * DEVELOPMENT_FACTOR;
 					}
 					else
 					{
 						opponentPieceValue += chessBoard.square[y][x].piece->getValue();
-						opponentSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, getOppositeSquare(x), getOppositeSquare(y), chessBoard.endgame);
+						opponentSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, getOppositeSquare(y), chessBoard.endgame);
 						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
-							opponentSquareValue -= 50;
+							opponentSquareValue -= 50 * DEVELOPMENT_FACTOR;
 					}
 				}
 			}
@@ -158,52 +158,16 @@ float	calculateBoard(Board &chessBoard, int player, bool relative)
 	if (player == WHITE_P)
 	{
 		if (chessBoard.castled[WHITE_P] == -1)
-			playerSquareValue -= 60;
-		else
-		{
-			if (chessBoard.square[chessBoard.kingPosY[WHITE_P] - 1][chessBoard.kingPosX[WHITE_P]].piece == NULL)
-				playerSquareValue -= 20;
-			if (chessBoard.square[chessBoard.kingPosY[WHITE_P] - 1][chessBoard.kingPosX[WHITE_P] - 1].piece == NULL)
-				playerSquareValue -= 20;
-			if (chessBoard.square[chessBoard.kingPosY[WHITE_P] - 1][chessBoard.kingPosX[WHITE_P] + 1].piece == NULL)
-				playerSquareValue -= 20;
-		}
+			playerSquareValue -= 60 * CASTLE_FACTOR;
 		if (chessBoard.castled[BLACK_P] == -1)
-			opponentSquareValue -= 60;
-		else
-		{
-			if (chessBoard.square[chessBoard.kingPosY[BLACK_P] + 1][chessBoard.kingPosX[BLACK_P]].piece == NULL)
-				opponentSquareValue -= 20;
-			if (chessBoard.square[chessBoard.kingPosY[BLACK_P] + 1][chessBoard.kingPosX[BLACK_P] - 1].piece == NULL)
-				opponentSquareValue -= 20;
-			if (chessBoard.square[chessBoard.kingPosY[BLACK_P] + 1][chessBoard.kingPosX[BLACK_P] + 1].piece == NULL)
-				opponentSquareValue -= 20;
-		}
+			opponentSquareValue -= 60 * CASTLE_FACTOR;
 	}
 	else
 	{
 		if (chessBoard.castled[BLACK_P] == -1)
-			playerSquareValue -= 60;
-		else
-		{
-			if (chessBoard.square[chessBoard.kingPosY[BLACK_P] + 1][chessBoard.kingPosX[BLACK_P]].piece == NULL)
-				playerSquareValue -= 20;
-			if (chessBoard.square[chessBoard.kingPosY[BLACK_P] + 1][chessBoard.kingPosX[BLACK_P] - 1].piece == NULL)
-				playerSquareValue -= 20;
-			if (chessBoard.square[chessBoard.kingPosY[BLACK_P] + 1][chessBoard.kingPosX[BLACK_P] + 1].piece == NULL)
-				playerSquareValue -= 20;
-		}
+			playerSquareValue -= 60 * CASTLE_FACTOR;
 		if (chessBoard.castled[WHITE_P] == -1)
-			opponentSquareValue -= 60;
-		else
-		{
-			if (chessBoard.square[chessBoard.kingPosY[WHITE_P] - 1][chessBoard.kingPosX[WHITE_P]].piece == NULL)
-				opponentSquareValue -= 20;
-			if (chessBoard.square[chessBoard.kingPosY[WHITE_P] - 1][chessBoard.kingPosX[WHITE_P] - 1].piece == NULL)
-				opponentSquareValue -= 20;
-			if (chessBoard.square[chessBoard.kingPosY[WHITE_P] - 1][chessBoard.kingPosX[WHITE_P] + 1].piece == NULL)
-				opponentSquareValue -= 20;
-		}
+			opponentSquareValue -= 60 * CASTLE_FACTOR;
 	}
 	if (chessBoard.endgame == false && playerPieceValue < endGameThreshold && opponentPieceValue < endGameThreshold)
 	{
@@ -215,7 +179,15 @@ float	calculateBoard(Board &chessBoard, int player, bool relative)
 		otherPlayer = BLACK_P;
 	else
 		otherPlayer = WHITE_P;
-	float boardValue = (playerPieceValue + playerSquareValue + (getMobility(chessBoard, player) / 10)) / (opponentPieceValue + opponentSquareValue + (getMobility(chessBoard, otherPlayer) / 10));
+
+	float playerMobility = (getMobility(chessBoard, player) / 10) * MOBILITY_FACTOR;
+	float opponentMobility = (getMobility(chessBoard, otherPlayer) / 10) * MOBILITY_FACTOR;
+	playerPieceValue *= PIECE_VALUE_FACTOR;
+	opponentPieceValue *= PIECE_VALUE_FACTOR;
+	playerSquareValue *= PIECE_SQUARE_FACTOR;
+	opponentSquareValue *= PIECE_SQUARE_FACTOR;
+
+	float boardValue = (playerPieceValue + playerSquareValue + playerMobility) / (opponentPieceValue + opponentSquareValue + opponentMobility);
 	return (boardValue);
 }
 
@@ -232,7 +204,7 @@ ChessPiece	*movePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, in
 		&& ((targetY == 7 && pieceOwner == BLACK_P) || (targetY == 0 && pieceOwner == WHITE_P)))
 	{
 		chessBoard.square[targetY][targetX].piece->setType(QUEEN);
-		chessBoard.square[targetY][targetX].piece->promotePawn();
+		chessBoard.square[targetY][targetX].piece->promotePawn(chessBoard.moveTurn);
 	}
 
 	bool pieceHasMoved = chessBoard.square[targetY][targetX].piece->getHasMoved();
@@ -300,7 +272,7 @@ void	revertMovePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int
 		chessBoard.square[pieceY][pieceX].piece = chessBoard.square[targetY][targetX].piece;
 	chessBoard.square[targetY][targetX].piece = deletedPiece;
 
-	if (chessBoard.square[pieceY][pieceX].piece->getPromotedPawn() == true)
+	if (chessBoard.square[pieceY][pieceX].piece->getPromotedPawn() == chessBoard.moveTurn)
 	{
 		chessBoard.square[pieceY][pieceX].piece->setType(PAWN);
 		chessBoard.square[pieceY][pieceX].piece->demotePawn();

@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 08:41:31 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 15:35:47 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,9 @@ bool	isMovePossible(Board &chessBoard, int pieceX, int pieceY, int xAdd, int yAd
 void	toggleCheckBothPlayers(Board &chessBoard);
 bool	lookForCheckmate(Board &chessBoard);
 bool	possibleMoveCheck(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY);
+
+float	getPieceSquareValue(ChessPiece *piece, int x, int y, bool endgame);
+float	getOppositeSquare(int i);
 
 ChessPiece	*movePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY);
 void		revertMovePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY, ChessPiece *deletedPiece, int player);

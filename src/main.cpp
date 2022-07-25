@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 10:57:33 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 16:21:32 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -735,6 +735,7 @@ void	drawDebugInfo(Data &data)
 				int xOffset = size * x + size / 2 - MeasureText(text.c_str(), size / 10) / 2;
 				int yOffset = size * y + (size / 10 * 0);
 				DrawText(text.c_str(), xOffset, yOffset, size / 10, PINK);
+
 				text = "HasMoved: ";
 				if (data.chessBoard.square[y][x].piece)
 				{
@@ -747,6 +748,39 @@ void	drawDebugInfo(Data &data)
 					text += "?";
 				xOffset = size * x + size / 2 - MeasureText(text.c_str(), size / 10) / 2;
 				yOffset = size * y + (size / 10 * 2);
+				DrawText(text.c_str(), xOffset, yOffset, size / 10, PINK);
+
+				text = "SquareVal: ";
+				if (data.chessBoard.square[y][x].piece)
+				{
+					int player = data.chessBoard.square[y][x].piece->getOwner();
+					float val = 0.0f;
+					if (player == WHITE_P)
+						val = getPieceSquareValue(data.chessBoard.square[y][x].piece, x, y, data.chessBoard.endgame);
+					else
+						val = getPieceSquareValue(data.chessBoard.square[y][x].piece, x, getOppositeSquare(y), data.chessBoard.endgame);
+					std::stringstream stream;
+					stream << std::fixed << std::setprecision(1) << val;
+					text += stream.str();
+				}
+				else
+					text += "?";
+				xOffset = size * x + size / 2 - MeasureText(text.c_str(), size / 10) / 2;
+				yOffset = size * y + (size / 10 * 3);
+				DrawText(text.c_str(), xOffset, yOffset, size / 10, PINK);
+
+				text = "Promoted: ";
+				if (data.chessBoard.square[y][x].piece)
+				{
+					if (data.chessBoard.square[y][x].piece->getPromotedPawn() != -1)
+						text += std::to_string(data.chessBoard.square[y][x].piece->getPromotedPawn());
+					else
+						text += "false";
+				}
+				else
+					text += "?";
+				xOffset = size * x + size / 2 - MeasureText(text.c_str(), size / 10) / 2;
+				yOffset = size * y + (size / 10 * 4);
 				DrawText(text.c_str(), xOffset, yOffset, size / 10, PINK);
 			}
 		}
@@ -787,12 +821,12 @@ int	main()
 		turnDebugOn(data);
 		grabPiece(data);
 		placePiece(data, WHITE_P);
-		if (data.turn == WHITE_P && data.chessBoard.checkmate == false)
-		{
-			if (data.aiThinking == false)
-				getBestAIMove(data, data.chessBoard, WHITE_P);
-			executeAIMove(data, data.chessBoard, WHITE_P);
-		}
+		// if (data.turn == WHITE_P && data.chessBoard.checkmate == false)
+		// {
+		// 	if (data.aiThinking == false)
+		// 		getBestAIMove(data, data.chessBoard, WHITE_P);
+		// 	executeAIMove(data, data.chessBoard, WHITE_P);
+		// }
 		if (data.turn == BLACK_P && data.chessBoard.checkmate == false)
 		{
 			if (data.aiThinking == false)
