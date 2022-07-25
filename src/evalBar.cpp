@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/23 05:14:35 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/24 16:23:08 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 08:24:43 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	runEvalBar(Data &data, Board &chessBoard)
 	}
 
 	std::cout << "Current Bar Depth: " << data.currentBarDepth << "  ";
-	data.barThreadMove = std::async(lookForMoves, data.barBoard, data.barTurn, data.currentBarDepth, false);
+	data.barThreadMove = std::async(lookForMoves, data.barBoard, data.turn, data.currentBarDepth, false);
 	data.currentBarDepth++;
 }
 
@@ -53,9 +53,11 @@ void	drawEvalBar(Data &data, Board &chessBoard)
 	{
 		whiteInFront = false;
 	}
-	std::string points = std::to_string((int)evalPts);
+	std::stringstream stream;
+	stream << std::fixed << std::setprecision(1) << evalPts;
+	std::string points = stream.str();
 	if (whiteInFront)
-		DrawText(points.c_str(), SCREEN_WIDTH + 5, SCREEN_HEIGHT - 20, 15, BLACK);
+		DrawText(points.c_str(), SCREEN_WIDTH + 5, SCREEN_HEIGHT - SCREEN_HEIGHT / 50, SCREEN_WIDTH / 80, BLACK);
 	else
-		DrawText(points.c_str(), SCREEN_WIDTH + 5, 20, 15, WHITE);
+		DrawText(points.c_str(), SCREEN_WIDTH + 5, SCREEN_HEIGHT / 50, SCREEN_WIDTH / 80, WHITE);
 }

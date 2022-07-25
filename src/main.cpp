@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/24 14:57:12 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 08:26:13 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -781,7 +781,6 @@ int	main()
 	initPieces(data);
 	while (!WindowShouldClose())
 	{
-		BeginDrawing();
 		// CALCULATIONS
 		if (data.currentBarDepth < data.nextBarDepth)
 			runEvalBar(data, data.chessBoard);
@@ -796,6 +795,7 @@ int	main()
 			executeAIMove(data, data.chessBoard, BLACK_P);
 		}
 		// START DRAWING
+		BeginDrawing();
 		ClearBackground(RAYWHITE);
 		drawBoard(data);
 		drawAllPieces(data);

@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/24 14:57:02 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 08:23:43 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,15 @@
 # include <iostream>
 # include <chrono>
 # include <mutex>
+# include <sstream>
+# include <iomanip>
 # include "../extern/raylib-cpp/include/raylib-cpp.hpp"
 # include "./Board.hpp"
 # include "./engine.hpp"
 
 
-# define SCREEN_WIDTH 800
-# define SCREEN_HEIGHT 800
+# define SCREEN_WIDTH 1200
+# define SCREEN_HEIGHT 1200
 
 # define CHECK 1
 # define MATE 2
