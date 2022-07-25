@@ -6,15 +6,15 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:20:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/23 20:24:30 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 10:26:15 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ENGINE_HPP
 # define ENGINE_HPP
 
-# define DEPTH_WHITE 6
-# define DEPTH_BLACK 6
+# define DEPTH_WHITE 5
+# define DEPTH_BLACK 5
 
 # include <algorithm>
 # include <thread>

@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 08:41:42 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 10:57:33 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -787,6 +787,12 @@ int	main()
 		turnDebugOn(data);
 		grabPiece(data);
 		placePiece(data, WHITE_P);
+		if (data.turn == WHITE_P && data.chessBoard.checkmate == false)
+		{
+			if (data.aiThinking == false)
+				getBestAIMove(data, data.chessBoard, WHITE_P);
+			executeAIMove(data, data.chessBoard, WHITE_P);
+		}
 		if (data.turn == BLACK_P && data.chessBoard.checkmate == false)
 		{
 			if (data.aiThinking == false)

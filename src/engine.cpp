@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 08:44:23 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 10:56:52 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,29 @@ static float	getPieceSquareValue(ChessPiece *piece, int x, int y, bool endgame)
 	if (endgame)
 		return (egFieldValues[piece->getType()][y * x]);
 	return (mgFieldValues[piece->getType()][y * x]);
+}
+
+int	getMobility(Board &chessBoard, int player)
+{
+	int	mobility = 0;
+	for (int pieceY = 0; pieceY < 8; ++pieceY)
+	{
+		for (int pieceX = 0; pieceX < 8; ++pieceX)
+		{
+			if (chessBoard.square[pieceY][pieceX].piece && chessBoard.square[pieceY][pieceX].piece->getOwner() == player)
+			{
+				for (int targetY = 0; targetY < 8; ++targetY)
+				{
+					for (int targetX = 0; targetX < 8; ++targetX)
+					{
+						if (isMovePossible(chessBoard, pieceX, pieceY, targetX - pieceX, targetY - pieceY, false))
+							mobility++;
+					}
+				}
+			}
+		}
+	}
+	return (mobility);
 }
 
 float	calculateBoard(Board &chessBoard, int player, bool relative)
@@ -187,7 +210,12 @@ float	calculateBoard(Board &chessBoard, int player, bool relative)
 		chessBoard.endgame = true;
 		std::cout << "ENDGAME ACTIVATED\n";
 	}
-	float boardValue = (playerPieceValue + playerSquareValue) / (opponentPieceValue + opponentSquareValue);
+	int otherPlayer;
+	if (player == WHITE_P)
+		otherPlayer = BLACK_P;
+	else
+		otherPlayer = WHITE_P;
+	float boardValue = (playerPieceValue + playerSquareValue + (getMobility(chessBoard, player) / 10)) / (opponentPieceValue + opponentSquareValue + (getMobility(chessBoard, otherPlayer) / 10));
 	return (boardValue);
 }
 
