@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 08:23:43 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 08:41:31 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,6 @@ struct Data {
 	int									currentBarDepth = 5;
 	int									nextBarDepth = 6;
 	float								barEval;
-	int									barTurn = WHITE_P;
 };
 
 bool	isMovePossible(Board &chessBoard, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck);

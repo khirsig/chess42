@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:25:28 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 08:26:13 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 08:41:42 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -375,7 +375,6 @@ void	placePiece(Data &data, int player)
 					}
 					data.moveNbr++;
 
-					runEvalBar(data, data.chessBoard);
 					int otherPlayer;
 					if (player == WHITE_P)
 						otherPlayer = BLACK_P;

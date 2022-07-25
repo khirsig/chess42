@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/23 05:14:35 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 08:24:43 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 08:41:24 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,10 @@ void	runEvalBar(Data &data, Board &chessBoard)
 {
 	data.barBoard = copyBoard(chessBoard);
 	if (data.currentBarDepth == 3)
-	{
 		data.nextBarDepth = data.currentBarDepth + 1;
-	}
 
-	std::cout << "Current Bar Depth: " << data.currentBarDepth << "  ";
 	data.barThreadMove = std::async(lookForMoves, data.barBoard, data.turn, data.currentBarDepth, false);
+	// std::cout << "Current Bar Depth: " << data.currentBarDepth << " evaluated for player " << data.turn << "\n";
 	data.currentBarDepth++;
 }
 
@@ -33,9 +31,8 @@ void	drawEvalBar(Data &data, Board &chessBoard)
 		data.barEval = bestMove.getEvalPoints();
 		if (data.nextBarDepth < 6)
 			data.nextBarDepth = data.currentBarDepth + 1;
-		if (data.barTurn == WHITE_P)
+		if (data.turn == WHITE_P)
 			data.barEval *= -1;
-		data.barTurn = data.turn;
 	}
 
 	int endBlack = (float)SCREEN_HEIGHT / 20 * (data.barEval + 10);
