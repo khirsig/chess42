@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 08:23:49 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/25 08:26:44 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -459,7 +459,7 @@ void	executeAIMove(Data &data, Board &chessBoard, int player)
 			data.turn = WHITE_P;
 		else
 			data.turn = BLACK_P;
-		// runEvalBar(data, chessBoard);
+		runEvalBar(data, chessBoard);
 		data.currentBarDepth = 5;
 		data.aiThinking = false;
 		data.waitAI = 0;
