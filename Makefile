@@ -6,7 +6,7 @@
 #    By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/10 09:02:38 by tjensen           #+#    #+#              #
-#    Updated: 2022/07/23 21:05:44 by khirsig          ###   ########.fr        #
+#    Updated: 2022/07/29 10:39:48 by khirsig          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,9 +19,13 @@ NAME			:= chess42
 CC				:= c++
 CFLAGS			:= -std=c++0x -g -fsanitize=address
 
-SRCS			:=	main.cpp									\
-					engine.cpp									\
-					evalBar.cpp									\
+SRCS			:=	main.cpp					\
+					engine.cpp					\
+					evalBar.cpp					\
+					drawBoard.cpp				\
+					player.cpp					\
+					pieceRules.cpp				\
+					init.cpp					\
 
 OS				:= $(shell uname -s)
 NUMPROC			:= 8

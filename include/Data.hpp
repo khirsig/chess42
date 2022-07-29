@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 15:35:47 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/29 10:41:13 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,10 +64,21 @@ struct Data {
 	float								barEval;
 };
 
+void	placePiece(Data &data, int player);
+void	grabPiece(Data &data);
+
+void	drawBoard(Data &data);
+void	drawAllPieces(Data &data);
+void	drawDebugInfo(Data &data);
+
+void	initTex(Data &data);
+void	initPieces(Data &data);
+
 bool	isMovePossible(Board &chessBoard, int pieceX, int pieceY, int xAdd, int yAdd, bool lookForCheck);
 void	toggleCheckBothPlayers(Board &chessBoard);
 bool	lookForCheckmate(Board &chessBoard);
 bool	possibleMoveCheck(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY);
+bool	lookForCheck(Board &chessBoard, int player);
 
 float	getPieceSquareValue(ChessPiece *piece, int x, int y, bool endgame);
 float	getOppositeSquare(int i);

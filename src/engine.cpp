@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/05 11:11:38 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/25 16:18:06 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/29 09:12:37 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,8 @@ int	getMobility(Board &chessBoard, int player)
 	{
 		for (int pieceX = 0; pieceX < 8; ++pieceX)
 		{
-			if (chessBoard.square[pieceY][pieceX].piece && chessBoard.square[pieceY][pieceX].piece->getOwner() == player)
+			if (chessBoard.square[pieceY][pieceX].piece
+				&& chessBoard.square[pieceY][pieceX].piece->getOwner() == player)
 			{
 				for (int targetY = 0; targetY < 8; ++targetY)
 				{
@@ -127,7 +128,8 @@ float	calculateBoard(Board &chessBoard, int player, bool relative)
 					else
 					{
 						opponentPieceValue += chessBoard.square[y][x].piece->getValue();
-						opponentSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y, chessBoard.endgame);
+						opponentSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece,
+							x, y, chessBoard.endgame);
 						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
 							opponentSquareValue -= 50 * DEVELOPMENT_FACTOR;
 					}
@@ -137,14 +139,16 @@ float	calculateBoard(Board &chessBoard, int player, bool relative)
 					if (pieceOwner == player)
 					{
 						playerPieceValue += chessBoard.square[y][x].piece->getValue();
-						playerSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, y, chessBoard.endgame);
+						playerSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece,
+							x, y, chessBoard.endgame);
 						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
 							playerSquareValue -= 50 * DEVELOPMENT_FACTOR;
 					}
 					else
 					{
 						opponentPieceValue += chessBoard.square[y][x].piece->getValue();
-						opponentSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece, x, getOppositeSquare(y), chessBoard.endgame);
+						opponentSquareValue += getPieceSquareValue(chessBoard.square[y][x].piece,
+							x, getOppositeSquare(y), chessBoard.endgame);
 						if ((pieceType == KNIGHT || pieceType == BISHOP) && !pieceMoved)
 							opponentSquareValue -= 50 * DEVELOPMENT_FACTOR;
 					}
@@ -201,7 +205,8 @@ ChessPiece	*movePiece(Board &chessBoard, int pieceX, int pieceY, int targetX, in
 
 	int pieceOwner = chessBoard.square[targetY][targetX].piece->getOwner();
 	if (chessBoard.square[targetY][targetX].piece->getType() == PAWN
-		&& ((targetY == 7 && pieceOwner == BLACK_P) || (targetY == 0 && pieceOwner == WHITE_P)))
+		&& ((targetY == 7 && pieceOwner == BLACK_P)
+			|| (targetY == 0 && pieceOwner == WHITE_P)))
 	{
 		chessBoard.square[targetY][targetX].piece->setType(QUEEN);
 		chessBoard.square[targetY][targetX].piece->promotePawn(chessBoard.moveTurn);
@@ -310,7 +315,8 @@ float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int 
 	{
 		for (int pieceX = 0; pieceX < 8; ++pieceX)
 		{
-			if (chessBoard.square[pieceY][pieceX].piece && chessBoard.square[pieceY][pieceX].piece->getOwner() == movingPlayer)
+			if (chessBoard.square[pieceY][pieceX].piece
+				&& chessBoard.square[pieceY][pieceX].piece->getOwner() == movingPlayer)
 			{
 				for (int targetY = 0; targetY < 8; ++targetY)
 				{
@@ -331,7 +337,8 @@ float	depthCalculation(Board &chessBoard, int movingPlayer, int calcPlayer, int 
 								float ret = depthCalculation(chessBoard, (movingPlayer  + 1) % 2, calcPlayer, currentDepth + 1, totalDepth, alpha, beta, relative);
 								chessBoard.iterations++;
 								revertMovePiece(chessBoard, pieceX, pieceY, targetX, targetY, deletedPiece, movingPlayer);
-								if ((movingPlayer == calcPlayer && ret > value) || (movingPlayer != calcPlayer && ret < value))
+								if ((movingPlayer == calcPlayer && ret > value)
+									|| (movingPlayer != calcPlayer && ret < value))
 								{
 									value = ret;
 									if (movingPlayer == calcPlayer)
