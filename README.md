@@ -11,7 +11,7 @@ Moving all the pieces to the according rules works, except en passent.
 
 ## How to Run on MacOS
 
-In order for this to work you need to install the raylib on your system. I did this with brew.
+In order for this to work you need to install the raylib on your system. I did this with brew.  
 Go into the terminal of your choice and copy these lines:
 
 ```bash
