@@ -9,6 +9,23 @@ Both the engine and the evaluation bar are using multi-threading for higher effi
 
 Moving all the pieces to the according rules works, except en passent.
 
+## How to Run on MacOS
+
+In order for this to work you need to install the raylib on your system. I did this with brew.
+Go into the terminal of your choice and copy these lines:
+
+```bash
+brew install raylib
+```
+```bash
+git clone https://github.com/khirsig/chess42 && cd chess42
+```bash
+make && ./chess42
+```
+
+
+
+
 ## Preview
 
 ![chessGif1](https://user-images.githubusercontent.com/78398628/181710348-c59e62c7-b633-49b9-a274-96aa14df6700.gif)
