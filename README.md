@@ -19,12 +19,10 @@ brew install raylib
 ```
 ```bash
 git clone https://github.com/khirsig/chess42 && cd chess42
+```
 ```bash
 make && ./chess42
 ```
-
-
-
 
 ## Preview
 
