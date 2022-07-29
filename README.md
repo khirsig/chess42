@@ -23,6 +23,8 @@ git clone https://github.com/khirsig/chess42 && cd chess42
 ```bash
 make && ./chess42
 ```
+You can change the Screen width, height and the board color inside of the config.hpp.  
+All default raylib color defines work.
 
 ## Preview
 
