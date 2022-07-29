@@ -3,7 +3,7 @@
 This was a personal project of mine where I tried to create my own chess game.
 It was supposed to be a ~3 days project, until I wanted to create my own simple chess engine on top.
 
-The game engine I used was [raylib](https://github.com/raysan5/raylib).
+The game engine I used was [raylib](https://github.com/raysan5/raylib) with the [c++ wrapper\(https://github.com/RobLoach/raylib-cpp).
 The algorithm I used for the engine to go into depth is NegaMax in combination with alpha/beta pruning to make it more efficient.
 
 Moving all the pieces to the according rules works, except en passent.
