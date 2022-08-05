@@ -6,7 +6,7 @@
 /*   By: khirsig <khirsig@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/04 19:27:45 by khirsig           #+#    #+#             */
-/*   Updated: 2022/07/29 10:41:13 by khirsig          ###   ########.fr       */
+/*   Updated: 2022/07/29 14:57:31 by khirsig          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,7 @@
 # include "../extern/raylib-cpp/include/raylib-cpp.hpp"
 # include "./Board.hpp"
 # include "./engine.hpp"
-
-
-# define SCREEN_WIDTH 1200
-# define SCREEN_HEIGHT 1200
+# include "../config.hpp"
 
 # define CHECK 1
 # define MATE 2
@@ -41,8 +38,8 @@ static bool exitBarDepth = false;
 
 struct Data {
 	Board								chessBoard;
-	raylib::Color						primaryColor = RAYWHITE;
-	raylib::Color						secondaryColor = BLUE;
+	raylib::Color						primaryColor = PRIMARY_COLOR;
+	raylib::Color						secondaryColor = SECONDARY_COLOR;
 	std::vector<raylib::Texture2D>		tex;
 	int									moveNbr = -1;
 	ChessPiece							*grabbedPiece = nullptr;
@@ -79,6 +76,7 @@ void	toggleCheckBothPlayers(Board &chessBoard);
 bool	lookForCheckmate(Board &chessBoard);
 bool	possibleMoveCheck(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY);
 bool	lookForCheck(Board &chessBoard, int player);
+bool	possibleMoveCheck(Board &chessBoard, int pieceX, int pieceY, int targetX, int targetY);
 
 float	getPieceSquareValue(ChessPiece *piece, int x, int y, bool endgame);
 float	getOppositeSquare(int i);
